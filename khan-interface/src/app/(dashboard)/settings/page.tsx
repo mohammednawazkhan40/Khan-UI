@@ -27,11 +27,25 @@ export default function SettingsPage() {
           <Card>
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><User className="w-4 h-4" />Profile</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 khan-gradient rounded-full flex items-center justify-center">
-                  <span className="text-white text-xl font-black">NK</span>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="relative w-20 h-20 shrink-0">
+                  <img
+                    src="/images/nawaz-1.jpg"
+                    alt="Mr. Nawaz Khan"
+                    className="w-20 h-20 rounded-full object-cover object-top border-3 border-khan-red shadow-xl"
+                    style={{ borderWidth: '3px' }}
+                    onError={(e) => {
+                      const el = e.target as HTMLImageElement
+                      el.outerHTML = '<div style="width:80px;height:80px;background:linear-gradient(135deg,#DC2626,#991B1B);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;color:white">NK</div>'
+                    }}
+                  />
+                  <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background" />
                 </div>
-                <div><p className="font-semibold">Nawaz Khan</p><p className="text-sm text-muted-foreground">Admin · KM Car Deals</p></div>
+                <div>
+                  <p className="font-bold text-lg">Mr. Nawaz Khan</p>
+                  <p className="text-sm text-muted-foreground">Founder & Owner</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Admin · KM Car Deals</p>
+                </div>
               </div>
               {[['Full Name','Nawaz Khan'],['Email','nawaz@kmcardeals.com'],['Phone','+91 98765 43210'],['Business','KM Car Deals'],['City','Jaipur, Rajasthan']].map(([l,v]) => (
                 <div key={l} className="space-y-1"><label className="text-xs font-medium text-muted-foreground">{l}</label><Input defaultValue={v} /></div>

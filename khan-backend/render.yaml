@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: khan-interface-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8000
+      - key: OWNER_NAME
+        value: Nawaz Khan
+      - key: BUSINESS_NAME
+        value: KM Car Deals
+      - key: JWT_SECRET
+        value: khankm2026nawaz_secret_key_32chars
+      - key: FRONTEND_URL
+        value: https://khan-ui.vercel.app

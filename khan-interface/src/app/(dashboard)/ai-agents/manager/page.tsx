@@ -27,7 +27,18 @@ export default function BusinessManagerPage() {
     setMessages(m => [...m, userMsg])
     setInput('')
     setSending(true)
-    const reply = await sendAgentMessage('business_manager', input.trim())
+    // Pass full business context
+    const { mockCustomers, mockFinanceAccounts, mockRTOTasks, mockReminders, mockPayments } = await import('@/lib/mock')
+    const context = {
+      customers:        mockCustomers.length,
+      overdueCustomers: mockCustomers.filter(c => c.status === 'overdue').map(c => ({ fullName: c.fullName, phone: c.phone })),
+      totalOutstanding: mockFinanceAccounts.reduce((s, f) => s + f.outstandingAmount, 0),
+      overdueAccounts:  mockFinanceAccounts.filter(f => f.status === 'overdue').map(f => ({ customerName: f.customerName, outstandingAmount: f.outstandingAmount })),
+      rtoTasks:         mockRTOTasks.filter(r => !['completed','cancelled'].includes(r.status)).length,
+      todayReminders:   mockReminders.filter(r => r.status === 'due_today').length,
+      overduePayments:  mockPayments.filter(p => p.status === 'overdue').length,
+    }
+    const reply = await sendAgentMessage('business_manager', input.trim(), messages, context)
     setMessages(m => [...m, reply])
     setSending(false)
   }

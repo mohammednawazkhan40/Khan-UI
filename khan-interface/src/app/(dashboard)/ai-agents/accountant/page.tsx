@@ -27,7 +27,14 @@ export default function AccountantAgentPage() {
     setMessages(m => [...m, userMsg])
     setInput('')
     setSending(true)
-    const reply = await sendAgentMessage('accountant_agent', input.trim())
+    const { mockTransactions, mockExpenses, mockFinanceAccounts } = await import('@/lib/mock')
+    const context = {
+      recentTransactions: mockTransactions.slice(0, 20).map(t => ({ date: t.date, type: t.type, amount: t.amount, description: t.description })),
+      expenses:           mockExpenses.map(e => ({ category: e.category, amount: e.amount, description: e.description, date: e.date })),
+      totalOutstanding:   mockFinanceAccounts.reduce((s, f) => s + f.outstandingAmount, 0),
+      commissionPending:  mockFinanceAccounts.filter(f => !f.commissionReceived).reduce((s, f) => s + (f.commissionAmount || 0), 0),
+    }
+    const reply = await sendAgentMessage('accountant_agent', input.trim(), messages, context)
     setMessages(m => [...m, reply])
     setSending(false)
   }

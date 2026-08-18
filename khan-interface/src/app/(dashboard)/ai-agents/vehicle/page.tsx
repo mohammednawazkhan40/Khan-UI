@@ -31,7 +31,11 @@ export default function VehicleAgentPage() {
     setMessages(m => [...m, userMsg])
     setInput('')
     setSending(true)
-    const reply = await sendAgentMessage('vehicle_agent', input.trim())
+    const { mockVehicles } = await import('@/lib/mock')
+    const context = {
+      vehicles: mockVehicles.map(v => ({ registrationNumber: v.registrationNumber, brand: v.brand, model: v.model, year: v.year, status: v.status, rcStatus: v.rcStatus, insuranceStatus: v.insuranceStatus, insuranceExpiry: v.insuranceExpiry, rtoStatus: v.rtoStatus, kmDriven: v.kmDriven, notes: v.notes })),
+    }
+    const reply = await sendAgentMessage('vehicle_agent', input.trim(), messages, context)
     setMessages(m => [...m, reply])
     setSending(false)
   }

@@ -27,7 +27,13 @@ export default function SalesAgentPage() {
     setMessages(m => [...m, userMsg])
     setInput('')
     setSending(true)
-    const reply = await sendAgentMessage('sales_agent', input.trim())
+    const { mockCustomers, mockVehicles } = await import('@/lib/mock')
+    const context = {
+      customers:         mockCustomers.map(c => ({ fullName: c.fullName, phone: c.phone, status: c.status, vehicleInfo: c.vehicleInfo, amountPending: c.amountPending, nextFollowUpDate: c.nextFollowUpDate })),
+      pendingCustomers:  mockCustomers.filter(c => c.status === 'pending'),
+      vehicles:          mockVehicles.filter(v => ['listed','available'].includes(v.status)).map(v => ({ registrationNumber: v.registrationNumber, brand: v.brand, model: v.model, year: v.year, sellingPrice: v.sellingPrice })),
+    }
+    const reply = await sendAgentMessage('sales_agent', input.trim(), messages, context)
     setMessages(m => [...m, reply])
     setSending(false)
   }

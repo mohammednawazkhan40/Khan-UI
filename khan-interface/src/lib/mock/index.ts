@@ -1,8 +1,3 @@
-export * from './customers'
-export * from './vehicles'
-export * from './finance'
-export * from './payments'
-export * from './rto'
-export * from './reminders'
-export * from './agents'
+// Re-export everything from the consolidated data file
+export * from './data'
 export * from './notifications'

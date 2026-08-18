@@ -1,0 +1,718 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KM Car Deals - Admin Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#232733;--bg4:#2c3040;
+  --red:#DC2626;--red-hover:#B91C1C;--red-light:#FEE2E2;
+  --green:#16A34A;--green-bg:#052E16;
+  --yellow:#CA8A04;--yellow-bg:#422006;
+  --blue:#2563EB;--blue-bg:#172554;
+  --purple:#7C3AED;--purple-bg:#2E1065;
+  --text:#F1F5F9;--text2:#94A3B8;--text3:#64748B;
+  --border:#2C3040;--border2:#3B4156;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --transition:all .2s ease;
+}
+html{font-family:'Inter',system-ui,sans-serif;font-size:14px}
+body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{color:var(--red);text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);padding:20px}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--shadow)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo h1{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.login-logo .accent{color:var(--red)}
+.login-logo p{color:var(--text2);font-size:13px;margin-top:6px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;transition:var(--transition)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394A3B8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.btn-primary{width:100%;padding:13px;background:var(--red);color:#fff;border-radius:var(--radius-sm);font-size:14px;font-weight:600;transition:var(--transition);margin-top:8px}
+.btn-primary:hover{background:var(--red-hover);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.login-error{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#FCA5A5;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:16px;display:none}
+.app{display:none;min-height:100vh}
+.app.visible{display:flex}
+.sidebar{width:260px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;transition:transform .3s ease}
+.sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border)}
+.sidebar-header h1{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.sidebar-header .accent{color:var(--red)}
+.sidebar-header p{font-size:11px;color:var(--text3);margin-top:4px}
+.sidebar-nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-sm);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;transition:var(--transition);margin-bottom:2px}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(220,38,38,.12);color:var(--red)}
+.nav-item .icon{font-size:18px;width:24px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.user-avatar{width:36px;height:36px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.user-name{font-size:13px;font-weight:600}
+.user-email{font-size:11px;color:var(--text3)}
+.btn-logout{width:100%;padding:9px;background:var(--bg3);color:var(--text2);border-radius:var(--radius-sm);font-size:12px;font-weight:600;transition:var(--transition)}
+.btn-logout:hover{background:var(--bg4);color:var(--text)}
+.main-content{margin-left:260px;flex:1;min-height:100vh;padding:28px 32px}
+.page-header{margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.page-header h2{font-size:22px;font-weight:700}
+.page-header p{color:var(--text2);font-size:13px;margin-top:2px}
+.btn{padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;transition:var(--transition);display:inline-flex;align-items:center;gap:6px}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover{background:var(--red-hover)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{background:var(--bg3);color:var(--text)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:var(--transition)}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat-card .stat-icon{font-size:28px;margin-bottom:12px}
+.stat-card .stat-value{font-size:28px;font-weight:800;letter-spacing:-.5px}
+.stat-card .stat-label{font-size:12px;color:var(--text2);margin-top:4px;font-weight:500}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.card-header h3{font-size:16px;font-weight:700}
+.card-body{padding:20px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;min-width:240px}
+.search-box input{background:transparent;border:none;color:var(--text);padding:9px 4px;font-size:13px;width:100%}
+.search-box .search-icon{color:var(--text3);font-size:14px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;padding:12px 16px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{transition:var(--transition)}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:#4ADE80}
+.badge-red{background:rgba(220,38,38,.15);color:#FCA5A5}
+.badge-yellow{background:var(--yellow-bg);color:#FACC15}
+.badge-blue{background:var(--blue-bg);color:#60A5FA}
+.badge-purple{background:var(--purple-bg);color:#C084FC}
+.badge-gray{background:rgba(100,116,139,.15);color:#94A3B8}
+.badge-orange{background:#431407;color:#FB923C}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-state p{font-size:14px}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;visibility:hidden;transition:var(--transition)}
+.modal-overlay.open{opacity:1;visibility:visible}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.5);transform:translateY(20px) scale(.97);transition:var(--transition)}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:17px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--bg3);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:18px;transition:var(--transition)}
+.modal-close:hover{background:var(--bg4);color:var(--text)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.toast-container{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:#fff;box-shadow:var(--shadow);transform:translateX(120%);transition:transform .3s ease;min-width:260px;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateX(0)}
+.toast-success{background:#16A34A}
+.toast-error{background:#DC2626}
+.toast-info{background:#2563EB}
+.page-section{display:none}
+.page-section.active{display:block}
+.table-count{font-size:12px;color:var(--text3);margin-bottom:12px}
+.actions-cell{display:flex;gap:6px}
+.btn-icon{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--transition)}
+.btn-edit{background:var(--bg4);color:var(--text2)}
+.btn-edit:hover{background:var(--blue-bg);color:#60A5FA}
+.btn-delete{background:var(--bg4);color:var(--text2)}
+.btn-delete:hover{background:rgba(220,38,38,.15);color:#FCA5A5}
+.mobile-toggle{display:none;position:fixed;top:16px;left:16px;z-index:200;width:40px;height:40px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:20px;align-items:center;justify-content:center}
+.sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:99}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn .3s ease}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .main-content{margin-left:0;padding:20px 16px;padding-top:64px}
+  .mobile-toggle{display:flex}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-card{padding:14px}
+  .stat-card .stat-value{font-size:20px}
+  .form-row{grid-template-columns:1fr}
+  .search-box{min-width:auto;width:100%}
+  .page-header{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1><span class="accent">KM</span> Car Deals</h1>
+      <p>Admin Portal - Nawaz Khan</p>
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <form id="loginForm">
+      <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="nawaz@kmcardeals.com" required></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter password" required></div>
+      <button type="submit" class="btn-primary" id="loginBtn">Sign In</button>
+    </form>
+  </div>
+</div>
+<div class="app" id="app">
+  <button class="mobile-toggle" id="mobileToggle">&#9776;</button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header"><h1><span class="accent">KM</span> Car Deals</h1><p>Pre-Owned Cars - Jaipur</p></div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">NK</div>
+        <div><div class="user-name">Nawaz Khan</div><div class="user-email">nawaz@kmcardeals.com</div></div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">Sign Out</button>
+    </div>
+  </aside>
+  <main class="main-content" id="mainContent"></main>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header"><h3 id="modalTitle"></h3><button class="modal-close" id="modalClose">&#10005;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><h3>Confirm Delete</h3><button class="modal-close" id="confirmCloseBtn">&#10005;</button></div>
+    <div class="modal-body"><p id="confirmText">Are you sure?</p></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="confirmCancelBtn">Cancel</button>
+      <button class="btn btn-red" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+<script>
+const API = 'http://localhost:8000';
+let token = localStorage.getItem('khan_token') || '';
+let currentTab = 'overview';
+let dataStore = {};
+let confirmCallback = null;
+
+const NAV_ITEMS = [
+  {tab:'overview',icon:'📊',label:'Overview'},
+  {tab:'customers',icon:'👥',label:'Customers'},
+  {tab:'vehicles',icon:'🚗',label:'Vehicles'},
+  {tab:'finance',icon:'🏦',label:'Finance'},
+  {tab:'payments',icon:'💰',label:'Payments'},
+  {tab:'transactions',icon:'📋',label:'Transactions'},
+  {tab:'rto',icon:'🏛️',label:'RTO Tasks'},
+  {tab:'reminders',icon:'⏰',label:'Reminders'}
+];
+
+function fmt(n){
+  if(n==null||n==='')return '—';
+  const num=Number(n);if(isNaN(num))return n;
+  return '\u20B9'+num.toLocaleString('en-IN');
+}
+function fmtDate(d){
+  if(!d)return '—';
+  try{return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}catch(e){return d}
+}
+function todayISO(){return new Date().toISOString().split('T')[0]}
+function v(id){const el=document.getElementById(id);return el?(el.value||'').trim():''}
+
+function statusBadge(s){
+  const m={available:'green',sold:'green',delivered:'green',completed:'green',paid:'green',active:'green',listed:'blue',
+    repair:'yellow',booked:'purple',pending:'yellow',upcoming:'yellow',due_today:'yellow',in_progress:'blue',
+    overdue:'red',cancelled:'red',low:'gray',medium:'yellow',high:'orange',critical:'red',
+    vehicle_sale:'green',vehicle_purchase:'blue',customer_payment:'green',expense:'red',emi_payment:'yellow',
+    commission:'purple',refund:'orange',other:'gray',closed:'gray',defaulted:'red'};
+  return '<span class="badge badge-'+(m[s]||'gray')+'">'+(s||'—').replace(/_/g,' ')+'</span>';
+}
+
+function toast(msg,type){
+  type=type||'success';
+  var c=document.getElementById('toastContainer');
+  var t=document.createElement('div');
+  t.className='toast toast-'+type;t.textContent=msg;
+  c.appendChild(t);
+  requestAnimationFrame(function(){t.classList.add('show')});
+  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove()},300)},3000);
+}
+
+function showModal(title,bodyHTML,footerHTML){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=bodyHTML;
+  document.getElementById('modalFooter').innerHTML=footerHTML;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open')}
+function showConfirm(text,cb){
+  document.getElementById('confirmText').textContent=text;
+  confirmCallback=cb;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');confirmCallback=null}
+
+async function api(path,opts){
+  opts=opts||{};
+  var headers={'Content-Type':'application/json'};
+  if(token)headers['Authorization']='Bearer '+token;
+  try{
+    var res=await fetch(API+path,Object.assign({},opts,{headers:headers}));
+    if(res.status===401){token='';localStorage.removeItem('khan_token');showLogin();throw new Error('Session expired')}
+    var data=await res.json();
+    if(!res.ok)throw new Error(data.detail||data.message||'Request failed');
+    return data;
+  }catch(e){throw e}
+}
+
+document.getElementById('loginForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var email=document.getElementById('loginEmail').value.trim();
+  var pass=document.getElementById('loginPassword').value;
+  var errEl=document.getElementById('loginError');
+  var btn=document.getElementById('loginBtn');
+  errEl.style.display='none';btn.disabled=true;btn.textContent='Signing in...';
+  try{
+    var d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({email:email,password:pass})});
+    token=d.token||d.access_token;
+    if(!token)throw new Error('No token received');
+    localStorage.setItem('khan_token',token);
+    if(d.user){
+      var nm=d.user.name||d.user.full_name||'Nawaz Khan';
+      var em=d.user.email||email;
+      localStorage.setItem('khan_user_name',nm);
+      localStorage.setItem('khan_user_email',em);
+    }
+    showApp();
+  }catch(err){
+    errEl.textContent=err.message||'Invalid credentials';
+    errEl.style.display='block';
+  }
+  btn.disabled=false;btn.textContent='Sign In';
+});
+
+document.getElementById('logoutBtn').addEventListener('click',function(){
+  token='';localStorage.removeItem('khan_token');localStorage.removeItem('khan_user_name');localStorage.removeItem('khan_user_email');
+  showLogin();
+});
+document.getElementById('mobileToggle').addEventListener('click',function(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+});
+document.getElementById('sidebarOverlay').addEventListener('click',function(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+});
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===e.currentTarget)closeModal()});
+document.getElementById('confirmCloseBtn').addEventListener('click',closeConfirm);
+document.getElementById('confirmCancelBtn').addEventListener('click',closeConfirm);
+document.getElementById('confirmOverlay').addEventListener('click',function(e){if(e.target===e.currentTarget)closeConfirm()});
+document.getElementById('confirmOkBtn').addEventListener('click',function(){if(confirmCallback)confirmCallback();closeConfirm()});
+
+function showLogin(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').classList.remove('visible');
+}
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  renderNav();
+  switchTab('overview');
+}
+function renderNav(){
+  var html='';
+  NAV_ITEMS.forEach(function(n){
+    html+='<div class="nav-item'+(n.tab===currentTab?' active':'')+'" data-tab="'+n.tab+'">';
+    html+='<span class="icon">'+n.icon+'</span><span>'+n.label+'</span></div>';
+  });
+  document.getElementById('sidebarNav').innerHTML=html;
+  document.querySelectorAll('.nav-item').forEach(function(el){
+    el.addEventListener('click',function(){switchTab(this.dataset.tab)});
+  });
+  var nm=localStorage.getItem('khan_user_name')||'Nawaz Khan';
+  var em=localStorage.getItem('khan_user_email')||'nawaz@kmcardeals.com';
+  var ui=document.querySelector('.user-info');
+  if(ui){
+    ui.querySelector('.user-name').textContent=nm;
+    ui.querySelector('.user-email').textContent=em;
+    ui.querySelector('.user-avatar').textContent=nm.split(' ').map(function(w){return w[0]}).join('').substring(0,2).toUpperCase();
+  }
+}
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.tab===tab)});
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+  var loaders={overview:loadDashboard,customers:loadCustomers,vehicles:loadVehicles,
+    finance:loadFinance,payments:loadPayments,transactions:loadTransactions,rto:loadRto,reminders:loadReminders};
+  if(loaders[tab])loaders[tab]();
+}
+function setPage(html){document.getElementById('mainContent').innerHTML=html}
+function makeSelect(id,value,options){
+  var h='<select id="'+id+'">';
+  options.forEach(function(o){
+    var val=typeof o==='object'?o.value:o;
+    var label=typeof o==='object'?o.label:val.replace(/_/g,' ');
+    h+='<option value="'+val+'"'+(value===val?' selected':'')+'>'+label+'</option>';
+  });
+  return h+'</select>';
+}
+function FormField(label,inputHTML){return '<div class="form-group"><label>'+label+'</label>'+inputHTML+'</div>'}
+function FormRow(a,b){return '<div class="form-row">'+a+b+'</div>'}
+
+async function loadDashboard(){
+  setPage('<div class="page-header"><div><h2>Dashboard Overview</h2><p>Welcome back, Nawaz</p></div><button class="btn btn-outline" id="refreshDash">↻ Refresh</button></div><div class="stats-grid" id="statsGrid"><div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Loading...</div></div>');
+  document.getElementById('refreshDash').addEventListener('click',loadDashboard);
+  try{
+    var d=await api('/api/dashboard/summary');
+    dataStore.dashboard=d;
+    var s=[
+      {icon:'🚗',value:d.total_vehicles??0,label:'Total Vehicles',color:'var(--blue)'},
+      {icon:'👥',value:d.total_customers??0,label:'Total Customers',color:'var(--green)'},
+      {icon:'🏦',value:fmt(d.finance_outstanding),label:'Finance Outstanding',color:'var(--yellow)'},
+      {icon:'💰',value:fmt(d.collected_this_month),label:'Collected This Month',color:'var(--green)'},
+      {icon:'🏛️',value:d.rto_pending??0,label:'RTO Pending',color:'var(--purple)'},
+      {icon:'⏰',value:d.reminders_today??0,label:'Reminders Today',color:'var(--yellow)'},
+      {icon:'⚠️',value:d.overdue_payments??0,label:'Overdue Payments',color:'var(--red)'},
+      {icon:'🔴',value:d.overdue_customers??0,label:'Overdue Customers',color:'var(--red)'}
+    ];
+    var h='';
+    s.forEach(function(x,i){
+      h+='<div class="stat-card fade-in" style="animation-delay:'+i*50+'ms">';
+      h+='<div class="stat-icon">'+x.icon+'</div>';
+      h+='<div class="stat-value" style="color:'+x.color+'">'+x.value+'</div>';
+      h+='<div class="stat-label">'+x.label+'</div></div>';
+    });
+    document.getElementById('statsGrid').innerHTML=h;
+  }catch(e){
+    document.getElementById('statsGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Could not load dashboard data.<br><small>'+e.message+'</small><br><button class="btn btn-outline" style="margin-top:12px" onclick="loadDashboard()">Retry</button></div>';
+  }
+}
+// ─── CUSTOMERS ───
+async function loadCustomers(){
+  setPage('<div class="page-header"><div><h2>Customers</h2><p>Manage your customer database</p></div><button class="btn btn-red" id="addCustBtn">+ Add Customer</button></div><div class="card"><div class="card-header"><h3>All Customers</h3><div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search customers..." id="searchCust"></div></div><div class="card-body"><div class="table-count" id="custCount"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Vehicle</th><th>Pending</th><th>Status</th><th>Actions</th></tr></thead><tbody id="custTb"></tbody></table></div><div class="empty-state" id="custEmpty" style="display:none"><div class="empty-icon">👥</div><p>No customers found</p></div></div></div>');
+  document.getElementById('addCustBtn').addEventListener('click',function(){openCustomerModal()});
+  document.getElementById('searchCust').addEventListener('input',filterCustomers);
+  try{
+    var d=await api('/api/customers');
+    dataStore.customers=d.data||d||[];
+    renderCustomers(dataStore.customers);
+  }catch(e){toast('Failed to load customers: '+e.message,'error')}
+}
+function renderCustomers(list){
+  var tb=document.getElementById('custTb'),ct=document.getElementById('custCount'),em=document.getElementById('custEmpty');
+  if(!list.length){tb.innerHTML='';ct.textContent='';em.style.display='block';return}
+  em.style.display='none';ct.textContent=list.length+' customer'+(list.length!==1?'s':'');
+  tb.innerHTML=list.map(function(c){
+    return '<tr><td>'+(c.customer_id||c.id||'—')+'</td><td><strong>'+(c.full_name||'—')+'</strong></td><td>'+(c.phone||'—')+'</td><td>'+(c.vehicle_registration||'—')+'</td><td>'+fmt(c.amount_pending)+'</td><td>'+statusBadge(c.status)+'</td><td class="actions-cell"><button class="btn-icon btn-edit" data-edit-cust="'+encodeURIComponent(JSON.stringify(c))+'" title="Edit">✎</button><button class="btn-icon btn-delete" data-del-cust="'+(c.customer_id||c.id)+'" title="Delete">🗑</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('[data-edit-cust]').forEach(function(b){
+    b.addEventListener('click',function(){openCustomerModal(JSON.parse(decodeURIComponent(this.dataset.editCust)))});
+  });
+  tb.querySelectorAll('[data-del-cust]').forEach(function(b){
+    b.addEventListener('click',function(){var id=this.dataset.delCust;showConfirm('Delete this customer?',async function(){try{await api('/api/customers/'+id,{method:'DELETE'});toast('Customer deleted');loadCustomers()}catch(e){toast(e.message,'error')}})});
+  });
+}
+function filterCustomers(){
+  var q=document.getElementById('searchCust').value.toLowerCase();
+  renderCustomers(dataStore.customers.filter(function(c){
+    return(c.full_name||'').toLowerCase().includes(q)||(c.phone||'').includes(q)||(c.vehicle_registration||'').toLowerCase().includes(q);
+  }));
+}
+function openCustomerModal(c){
+  c=c||{};var isEdit=!!c.customer_id||!!c.id;var id=c.customer_id||c.id||'';
+  showModal(isEdit?'Edit Customer':'Add Customer',
+    FormRow(FormField('Full Name','<input id="f_full_name" value="'+(c.full_name||'')+'">'),FormField('Phone','<input id="f_phone" value="'+(c.phone||'')+'">'))+
+    FormRow(FormField('WhatsApp','<input id="f_whatsapp" value="'+(c.whatsapp||'')+'">'),FormField('Email','<input id="f_email" value="'+(c.email||'')+'">'))+
+    FormRow(FormField('Vehicle Registration','<input id="f_vehicle_registration" value="'+(c.vehicle_registration||'')+'">'),FormField('Vehicle Info','<input id="f_vehicle_info" value="'+(c.vehicle_info||'')+'">'))+
+    FormRow(FormField('Amount Pending (\u20B9)','<input id="f_amount_pending" type="number" value="'+(c.amount_pending||'')+'">'),FormField('Status',makeSelect('f_status',c.status||'active',['active','inactive','completed'])))+
+    FormField('Notes','<textarea id="f_notes">'+(c.notes||'')+'</textarea>'),
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="saveCustBtn">'+(isEdit?'Update':'Create')+'</button>'
+  );
+  document.getElementById('saveCustBtn').addEventListener('click',function(){saveCustomer(id)});
+}
+async function saveCustomer(id){
+  var body={full_name:v('f_full_name'),phone:v('f_phone'),whatsapp:v('f_whatsapp'),email:v('f_email'),vehicle_registration:v('f_vehicle_registration'),vehicle_info:v('f_vehicle_info'),amount_pending:parseFloat(v('f_amount_pending'))||0,status:v('f_status'),notes:v('f_notes')};
+  try{
+    if(id){await api('/api/customers/'+id,{method:'PUT',body:JSON.stringify(body)});toast('Customer updated')}
+    else{await api('/api/customers',{method:'POST',body:JSON.stringify(body)});toast('Customer created')}
+    closeModal();loadCustomers();
+  }catch(e){toast(e.message,'error')}
+}
+
+// ─── VEHICLES ───
+async function loadVehicles(){
+  setPage('<div class="page-header"><div><h2>Vehicles</h2><p>Inventory management</p></div><button class="btn btn-red" id="addVehBtn">+ Add Vehicle</button></div><div class="card"><div class="card-header"><h3>All Vehicles</h3><div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search vehicles..." id="searchVeh"></div></div><div class="card-body"><div class="table-count" id="vehCount"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Reg No</th><th>Brand</th><th>Model</th><th>Year</th><th>Purchase</th><th>Selling</th><th>Status</th><th>Actions</th></tr></thead><tbody id="vehTb"></tbody></table></div><div class="empty-state" id="vehEmpty" style="display:none"><div class="empty-icon">🚗</div><p>No vehicles found</p></div></div></div>');
+  document.getElementById('addVehBtn').addEventListener('click',function(){openVehicleModal()});
+  document.getElementById('searchVeh').addEventListener('input',filterVehicles);
+  try{
+    var d=await api('/api/vehicles');
+    dataStore.vehicles=d.data||d||[];
+    renderVehicles(dataStore.vehicles);
+  }catch(e){toast('Failed to load vehicles: '+e.message,'error')}
+}
+function renderVehicles(list){
+  var tb=document.getElementById('vehTb'),ct=document.getElementById('vehCount'),em=document.getElementById('vehEmpty');
+  if(!list.length){tb.innerHTML='';ct.textContent='';em.style.display='block';return}
+  em.style.display='none';ct.textContent=list.length+' vehicle'+(list.length!==1?'s':'');
+  tb.innerHTML=list.map(function(c){
+    return '<tr><td>'+(c.vehicle_id||c.id||'—')+'</td><td><strong>'+(c.registration_number||'—')+'</strong></td><td>'+(c.brand||'—')+'</td><td>'+(c.model||'—')+'</td><td>'+(c.year||'—')+'</td><td>'+fmt(c.purchase_price)+'</td><td>'+fmt(c.selling_price)+'</td><td>'+statusBadge(c.status)+'</td><td class="actions-cell"><button class="btn-icon btn-edit" data-edit-veh="'+encodeURIComponent(JSON.stringify(c))+'" title="Edit">✎</button><button class="btn-icon btn-delete" data-del-veh="'+(c.vehicle_id||c.id)+'" title="Delete">🗑</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('[data-edit-veh]').forEach(function(b){
+    b.addEventListener('click',function(){openVehicleModal(JSON.parse(decodeURIComponent(this.dataset.editVeh)))});
+  });
+  tb.querySelectorAll('[data-del-veh]').forEach(function(b){
+    b.addEventListener('click',function(){var id=this.dataset.delVeh;showConfirm('Delete this vehicle?',async function(){try{await api('/api/vehicles/'+id,{method:'DELETE'});toast('Vehicle deleted');loadVehicles()}catch(e){toast(e.message,'error')}})});
+  });
+}
+function filterVehicles(){
+  var q=document.getElementById('searchVeh').value.toLowerCase();
+  renderVehicles(dataStore.vehicles.filter(function(c){
+    return(c.registration_number||'').toLowerCase().includes(q)||(c.brand||'').toLowerCase().includes(q)||(c.model||'').toLowerCase().includes(q);
+  }));
+}
+function openVehicleModal(c){
+  c=c||{};var isEdit=!!c.vehicle_id||!!c.id;var id=c.vehicle_id||c.id||'';
+  showModal(isEdit?'Edit Vehicle':'Add Vehicle',
+    FormField('Registration Number','<input id="v_registration_number" value="'+(c.registration_number||'')+'">')+
+    FormRow(FormField('Brand','<input id="v_brand" value="'+(c.brand||'')+'">'),FormField('Model','<input id="v_model" value="'+(c.model||'')+'">'))+
+    FormRow(FormField('Year','<input id="v_year" type="number" value="'+(c.year||'')+'">'),FormField('Fuel',makeSelect('v_fuel',c.fuel||'petrol',['petrol','diesel','cng','electric','hybrid'])))+
+    FormField('KM Driven','<input id="v_km_driven" type="number" value="'+(c.km_driven||'')+'">')+
+    FormRow(FormField('Purchase Price (\u20B9)','<input id="v_purchase_price" type="number" value="'+(c.purchase_price||'')+'">'),FormField('Selling Price (\u20B9)','<input id="v_selling_price" type="number" value="'+(c.selling_price||'')+'">'))+
+    FormRow(FormField('Status',makeSelect('v_status',c.status||'available',['available','listed','repair','booked','sold','delivered'])),FormField('Lifecycle Stage','<input id="v_lifecycle_stage" value="'+(c.lifecycle_stage||'')+'">'))+
+    FormField('Notes','<textarea id="v_notes">'+(c.notes||'')+'</textarea>'),
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="saveVehBtn">'+(isEdit?'Update':'Create')+'</button>'
+  );
+  document.getElementById('saveVehBtn').addEventListener('click',function(){saveVehicle(id)});
+}
+async function saveVehicle(id){
+  var body={registration_number:v('v_registration_number'),brand:v('v_brand'),model:v('v_model'),year:parseInt(v('v_year'))||null,fuel:v('v_fuel'),km_driven:parseInt(v('v_km_driven'))||null,purchase_price:parseFloat(v('v_purchase_price'))||0,selling_price:parseFloat(v('v_selling_price'))||0,status:v('v_status'),lifecycle_stage:v('v_lifecycle_stage'),notes:v('v_notes')};
+  try{
+    if(id){await api('/api/vehicles/'+id,{method:'PUT',body:JSON.stringify(body)});toast('Vehicle updated')}
+    else{await api('/api/vehicles',{method:'POST',body:JSON.stringify(body)});toast('Vehicle created')}
+    closeModal();loadVehicles();
+  }catch(e){toast(e.message,'error')}
+}
+// ─── FINANCE ───
+async function loadFinance(){
+  setPage('<div class="page-header"><div><h2>Finance</h2><p>Loan and financing records</p></div><button class="btn btn-red" id="addFinBtn">+ Add Finance</button></div><div class="card"><div class="card-header"><h3>All Finance Records</h3></div><div class="card-body"><div class="table-count" id="finCount"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Company</th><th>Loan Amt</th><th>Outstanding</th><th>EMI</th><th>Status</th><th>Actions</th></tr></thead><tbody id="finTb"></tbody></table></div><div class="empty-state" id="finEmpty" style="display:none"><div class="empty-icon">🏦</div><p>No finance records found</p></div></div></div>');
+  document.getElementById('addFinBtn').addEventListener('click',function(){openFinanceModal()});
+  try{
+    var d=await api('/api/finance');
+    dataStore.finance=d.data||d||[];
+    renderFinance(dataStore.finance);
+  }catch(e){toast('Failed to load finance: '+e.message,'error')}
+}
+function renderFinance(list){
+  var tb=document.getElementById('finTb'),ct=document.getElementById('finCount'),em=document.getElementById('finEmpty');
+  if(!list.length){tb.innerHTML='';ct.textContent='';em.style.display='block';return}
+  em.style.display='none';ct.textContent=list.length+' record'+(list.length!==1?'s':'');
+  tb.innerHTML=list.map(function(f){
+    return '<tr><td>'+(f.finance_id||f.id||'—')+'</td><td><strong>'+(f.customer_name||'—')+'</strong></td><td>'+(f.finance_company||'—')+'</td><td>'+fmt(f.loan_amount)+'</td><td>'+fmt(f.outstanding_amount)+'</td><td>'+fmt(f.emi_amount)+'</td><td>'+statusBadge(f.status)+'</td><td class="actions-cell"><button class="btn-icon btn-edit" data-edit-fin="'+encodeURIComponent(JSON.stringify(f))+'" title="Edit">✎</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('[data-edit-fin]').forEach(function(b){
+    b.addEventListener('click',function(){openFinanceModal(JSON.parse(decodeURIComponent(this.dataset.editFin)))});
+  });
+}
+function openFinanceModal(c){
+  c=c||{};var isEdit=!!c.finance_id||!!c.id;var id=c.finance_id||c.id||'';
+  showModal(isEdit?'Edit Finance':'Add Finance',
+    FormRow(FormField('Customer Name','<input id="fn_customer_name" value="'+(c.customer_name||'')+'">'),FormField('Customer ID','<input id="fn_customer_id" value="'+(c.customer_id||'')+'">'))+
+    FormField('Finance Company','<input id="fn_finance_company" value="'+(c.finance_company||'')+'">')+
+    FormRow(FormField('Loan Amount (\u20B9)','<input id="fn_loan_amount" type="number" value="'+(c.loan_amount||'')+'">'),FormField('EMI Amount (\u20B9)','<input id="fn_emi_amount" type="number" value="'+(c.emi_amount||'')+'">'))+
+    FormRow(FormField('Total Installments','<input id="fn_total_installments" type="number" value="'+(c.total_installments||'')+'">'),FormField('Interest Rate (%)','<input id="fn_interest_rate" type="number" step="0.1" value="'+(c.interest_rate||'')+'">'))+
+    FormRow(FormField('Loan Start Date','<input id="fn_loan_start_date" type="date" value="'+((c.loan_start_date||'').split('T')[0]||'')+'">'),FormField('Status',makeSelect('fn_status',c.status||'active',['active','closed','defaulted','pending'])))+
+    FormField('Commission Amount (\u20B9)','<input id="fn_commission_amount" type="number" value="'+(c.commission_amount||'')+'">')+
+    FormField('Notes','<textarea id="fn_notes">'+(c.notes||'')+'</textarea>'),
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="saveFinBtn">'+(isEdit?'Update':'Create')+'</button>'
+  );
+  document.getElementById('saveFinBtn').addEventListener('click',function(){saveFinance(id)});
+}
+async function saveFinance(id){
+  var body={customer_name:v('fn_customer_name'),customer_id:v('fn_customer_id'),finance_company:v('fn_finance_company'),loan_amount:parseFloat(v('fn_loan_amount'))||0,emi_amount:parseFloat(v('fn_emi_amount'))||0,total_installments:parseInt(v('fn_total_installments'))||null,interest_rate:parseFloat(v('fn_interest_rate'))||null,loan_start_date:v('fn_loan_start_date')||null,status:v('fn_status'),commission_amount:parseFloat(v('fn_commission_amount'))||0,notes:v('fn_notes')};
+  try{
+    if(id){await api('/api/finance/'+id,{method:'PUT',body:JSON.stringify(body)});toast('Finance updated')}
+    else{await api('/api/finance',{method:'POST',body:JSON.stringify(body)});toast('Finance created')}
+    closeModal();loadFinance();
+  }catch(e){toast(e.message,'error')}
+}
+
+// ─── PAYMENTS ───
+async function loadPayments(){
+  setPage('<div class="page-header"><div><h2>Payments</h2><p>Payment tracking and collection</p></div><button class="btn btn-red" id="addPayBtn">+ Add Payment</button></div><div class="card"><div class="card-header"><h3>All Payments</h3></div><div class="card-body"><div class="table-count" id="payCount"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Amount</th><th>Due Date</th><th>Paid Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="payTb"></tbody></table></div><div class="empty-state" id="payEmpty" style="display:none"><div class="empty-icon">💰</div><p>No payments found</p></div></div></div>');
+  document.getElementById('addPayBtn').addEventListener('click',function(){openPaymentModal()});
+  try{
+    var d=await api('/api/payments');
+    dataStore.payments=d.data||d||[];
+    renderPayments(dataStore.payments);
+  }catch(e){toast('Failed to load payments: '+e.message,'error')}
+}
+function renderPayments(list){
+  var tb=document.getElementById('payTb'),ct=document.getElementById('payCount'),em=document.getElementById('payEmpty');
+  if(!list.length){tb.innerHTML='';ct.textContent='';em.style.display='block';return}
+  em.style.display='none';ct.textContent=list.length+' payment'+(list.length!==1?'s':'');
+  tb.innerHTML=list.map(function(p){
+    return '<tr><td>'+(p.payment_id||p.id||'—')+'</td><td><strong>'+(p.customer_name||'—')+'</strong></td><td>'+fmt(p.amount)+'</td><td>'+fmtDate(p.due_date)+'</td><td>'+fmtDate(p.paid_date)+'</td><td>'+statusBadge(p.status)+'</td><td class="actions-cell"><button class="btn-icon btn-edit" data-edit-pay="'+encodeURIComponent(JSON.stringify(p))+'" title="Edit">✎</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('[data-edit-pay]').forEach(function(b){
+    b.addEventListener('click',function(){openPaymentModal(JSON.parse(decodeURIComponent(this.dataset.editPay)))});
+  });
+}
+function openPaymentModal(c){
+  c=c||{};var isEdit=!!c.payment_id||!!c.id;var id=c.payment_id||c.id||'';
+  showModal(isEdit?'Edit Payment':'Add Payment',
+    FormRow(FormField('Customer Name','<input id="p_customer_name" value="'+(c.customer_name||'')+'">'),FormField('Customer ID','<input id="p_customer_id" value="'+(c.customer_id||'')+'">'))+
+    FormField('Amount (\u20B9)','<input id="p_amount" type="number" value="'+(c.amount||'')+'">')+
+    FormRow(FormField('Due Date','<input id="p_due_date" type="date" value="'+((c.due_date||'').split('T')[0]||'')+'">'),FormField('Paid Date','<input id="p_paid_date" type="date" value="'+((c.paid_date||'').split('T')[0]||'')+'">'))+
+    FormRow(FormField('Method',makeSelect('p_method',c.method||'cash',[{value:'cash',label:'Cash'},{value:'upi',label:'UPI'},{value:'bank_transfer',label:'Bank Transfer'},{value:'cheque',label:'Cheque'}])),FormField('Status',makeSelect('p_status',c.status||'upcoming',[{value:'upcoming',label:'Upcoming'},{value:'due_today',label:'Due Today'},{value:'overdue',label:'Overdue'},{value:'paid',label:'Paid'}])))+
+    FormField('Notes','<textarea id="p_notes">'+(c.notes||'')+'</textarea>'),
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="savePayBtn">'+(isEdit?'Update':'Create')+'</button>'
+  );
+  document.getElementById('savePayBtn').addEventListener('click',function(){savePayment(id)});
+}
+async function savePayment(id){
+  var body={customer_name:v('p_customer_name'),customer_id:v('p_customer_id'),amount:parseFloat(v('p_amount'))||0,due_date:v('p_due_date')||null,paid_date:v('p_paid_date')||null,method:v('p_method'),status:v('p_status'),notes:v('p_notes')};
+  try{
+    if(id){await api('/api/payments/'+id,{method:'PUT',body:JSON.stringify(body)});toast('Payment updated')}
+    else{await api('/api/payments',{method:'POST',body:JSON.stringify(body)});toast('Payment created')}
+    closeModal();loadPayments();
+  }catch(e){toast(e.message,'error')}
+}
+
+// ─── TRANSACTIONS ───
+async function loadTransactions(){
+  setPage('<div class="page-header"><div><h2>Transactions</h2><p>Financial transaction history</p></div><button class="btn btn-red" id="addTxnBtn">+ Add Transaction</button></div><div class="card"><div class="card-header"><h3>All Transactions</h3></div><div class="card-body"><div class="table-count" id="txnCount"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Date</th><th>Type</th><th>Amount</th><th>Method</th><th>Customer</th><th>Status</th></tr></thead><tbody id="txnTb"></tbody></table></div><div class="empty-state" id="txnEmpty" style="display:none"><div class="empty-icon">📋</div><p>No transactions found</p></div></div></div>');
+  document.getElementById('addTxnBtn').addEventListener('click',function(){openTransactionModal()});
+  try{
+    var d=await api('/api/transactions');
+    dataStore.transactions=d.data||d||[];
+    renderTransactions(dataStore.transactions);
+  }catch(e){toast('Failed to load transactions: '+e.message,'error')}
+}
+function renderTransactions(list){
+  var tb=document.getElementById('txnTb'),ct=document.getElementById('txnCount'),em=document.getElementById('txnEmpty');
+  if(!list.length){tb.innerHTML='';ct.textContent='';em.style.display='block';return}
+  em.style.display='none';ct.textContent=list.length+' transaction'+(list.length!==1?'s':'');
+  tb.innerHTML=list.map(function(t){
+    return '<tr><td>'+(t.transaction_id||t.id||'—')+'</td><td>'+fmtDate(t.date)+'</td><td>'+statusBadge(t.type||'other')+'</td><td>'+fmt(t.amount)+'</td><td>'+(t.method||'—').replace(/_/g,' ')+'</td><td>'+(t.customer_name||'—')+'</td><td>'+statusBadge(t.status)+'</td></tr>';
+  }).join('');
+}
+function openTransactionModal(){
+  showModal('Add Transaction',
+    FormField('Date','<input id="t_date" type="date" value="'+todayISO()+'">')+
+    FormRow(FormField('Type',makeSelect('t_type','vehicle_sale',['vehicle_sale','vehicle_purchase','customer_payment','expense','emi_payment','commission','refund','other'])),FormField('Amount (\u20B9)','<input id="t_amount" type="number">'))+
+    FormRow(FormField('Method',makeSelect('t_method','cash',[{value:'cash',label:'Cash'},{value:'upi',label:'UPI'},{value:'bank_transfer',label:'Bank Transfer'},{value:'cheque',label:'Cheque'},{value:'online',label:'Online'}])),FormField('Customer Name','<input id="t_customer_name">'))+
+    FormField('Reference Number','<input id="t_reference_number">')+
+    FormField('Description','<textarea id="t_description"></textarea>')+
+    FormField('Status',makeSelect('t_status','completed',['completed','pending','failed'])),
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="saveTxnBtn">Create</button>'
+  );
+  document.getElementById('saveTxnBtn').addEventListener('click',saveTransaction);
+}
+async function saveTransaction(){
+  var body={date:v('t_date')||null,type:v('t_type'),amount:parseFloat(v('t_amount'))||0,method:v('t_method'),customer_name:v('t_customer_name'),reference_number:v('t_reference_number'),description:v('t_description'),status:v('t_status')};
+  try{await api('/api/transactions',{method:'POST',body:JSON.stringify(body)});toast('Transaction created');closeModal();loadTransactions()}
+  catch(e){toast(e.message,'error')}
+}
+// ─── RTO ───
+async function loadRto(){
+  setPage('<div class="page-header"><div><h2>RTO Tasks</h2><p>RTO-related task management</p></div><button class="btn btn-red" id="addRtoBtn">+ Add Task</button></div><div class="card"><div class="card-header"><h3>All RTO Tasks</h3></div><div class="card-body"><div class="table-count" id="rtoCount"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Reg No</th><th>Task Type</th><th>RTO Office</th><th>Expected</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody id="rtoTb"></tbody></table></div><div class="empty-state" id="rtoEmpty" style="display:none"><div class="empty-icon">🏛️</div><p>No RTO tasks found</p></div></div></div>');
+  document.getElementById('addRtoBtn').addEventListener('click',function(){openRtoModal()});
+  try{
+    var d=await api('/api/rto');
+    dataStore.rto=d.data||d||[];
+    renderRto(dataStore.rto);
+  }catch(e){toast('Failed to load RTO tasks: '+e.message,'error')}
+}
+function renderRto(list){
+  var tb=document.getElementById('rtoTb'),ct=document.getElementById('rtoCount'),em=document.getElementById('rtoEmpty');
+  if(!list.length){tb.innerHTML='';ct.textContent='';em.style.display='block';return}
+  em.style.display='none';ct.textContent=list.length+' task'+(list.length!==1?'s':'');
+  tb.innerHTML=list.map(function(r){
+    return '<tr><td>'+(r.task_id||r.id||'—')+'</td><td><strong>'+(r.vehicle_registration||'—')+'</strong></td><td>'+(r.task_type||'—').replace(/_/g,' ')+'</td><td>'+(r.rto_office||'—')+'</td><td>'+fmtDate(r.expected_completion_date)+'</td><td>'+statusBadge(r.priority)+'</td><td>'+statusBadge(r.status)+'</td><td class="actions-cell"><button class="btn-icon btn-edit" data-edit-rto="'+encodeURIComponent(JSON.stringify(r))+'" title="Edit">✎</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('[data-edit-rto]').forEach(function(b){
+    b.addEventListener('click',function(){openRtoModal(JSON.parse(decodeURIComponent(this.dataset.editRto)))});
+  });
+}
+function openRtoModal(c){
+  c=c||{};var isEdit=!!c.task_id||!!c.id;var id=c.task_id||c.id||'';
+  showModal(isEdit?'Edit RTO Task':'Add RTO Task',
+    FormRow(FormField('Vehicle Registration','<input id="r_vehicle_registration" value="'+(c.vehicle_registration||'')+'">'),FormField('Customer Name','<input id="r_customer_name" value="'+(c.customer_name||'')+'">'))+
+    FormField('Task Type',makeSelect('r_task_type',c.task_type||'rc_transfer',['rc_transfer','noc','insurance','fitness','hypothecation','other']))+
+    FormField('RTO Office','<input id="r_rto_office" value="'+(c.rto_office||'')+'">')+
+    FormField('Expected Completion Date','<input id="r_expected_completion_date" type="date" value="'+((c.expected_completion_date||'').split('T')[0]||'')+'">')+
+    FormRow(FormField('Priority',makeSelect('r_priority',c.priority||'medium',['low','medium','high','critical'])),FormField('Status',makeSelect('r_status',c.status||'pending',['pending','in_progress','completed','cancelled'])))+
+    FormField('Notes','<textarea id="r_notes">'+(c.notes||'')+'</textarea>'),
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="saveRtoBtn">'+(isEdit?'Update':'Create')+'</button>'
+  );
+  document.getElementById('saveRtoBtn').addEventListener('click',function(){saveRto(id)});
+}
+async function saveRto(id){
+  var body={vehicle_registration:v('r_vehicle_registration'),customer_name:v('r_customer_name'),task_type:v('r_task_type'),rto_office:v('r_rto_office'),expected_completion_date:v('r_expected_completion_date')||null,priority:v('r_priority'),status:v('r_status'),notes:v('r_notes')};
+  try{
+    if(id){await api('/api/rto/'+id,{method:'PUT',body:JSON.stringify(body)});toast('RTO task updated')}
+    else{await api('/api/rto',{method:'POST',body:JSON.stringify(body)});toast('RTO task created')}
+    closeModal();loadRto();
+  }catch(e){toast(e.message,'error')}
+}
+
+// ─── REMINDERS ───
+async function loadReminders(){
+  setPage('<div class="page-header"><div><h2>Reminders</h2><p>Follow-ups and reminders</p></div><button class="btn btn-red" id="addRemBtn">+ Add Reminder</button></div><div class="card"><div class="card-header"><h3>All Reminders</h3></div><div class="card-body"><div class="table-count" id="remCount"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Customer</th><th>Due Date</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody id="remTb"></tbody></table></div><div class="empty-state" id="remEmpty" style="display:none"><div class="empty-icon">⏰</div><p>No reminders found</p></div></div></div>');
+  document.getElementById('addRemBtn').addEventListener('click',function(){openReminderModal()});
+  try{
+    var d=await api('/api/reminders');
+    dataStore.reminders=d.data||d||[];
+    renderReminders(dataStore.reminders);
+  }catch(e){toast('Failed to load reminders: '+e.message,'error')}
+}
+function renderReminders(list){
+  var tb=document.getElementById('remTb'),ct=document.getElementById('remCount'),em=document.getElementById('remEmpty');
+  if(!list.length){tb.innerHTML='';ct.textContent='';em.style.display='block';return}
+  em.style.display='none';ct.textContent=list.length+' reminder'+(list.length!==1?'s':'');
+  tb.innerHTML=list.map(function(r){
+    return '<tr><td>'+(r.reminder_id||r.id||'—')+'</td><td><strong>'+(r.title||'—')+'</strong></td><td>'+(r.customer_name||'—')+'</td><td>'+fmtDate(r.due_date)+'</td><td>'+statusBadge(r.priority)+'</td><td>'+statusBadge(r.status)+'</td><td class="actions-cell"><button class="btn-icon btn-edit" data-edit-rem="'+encodeURIComponent(JSON.stringify(r))+'" title="Edit">✎</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('[data-edit-rem]').forEach(function(b){
+    b.addEventListener('click',function(){openReminderModal(JSON.parse(decodeURIComponent(this.dataset.editRem)))});
+  });
+}
+function openReminderModal(c){
+  c=c||{};var isEdit=!!c.reminder_id||!!c.id;var id=c.reminder_id||c.id||'';
+  showModal(isEdit?'Edit Reminder':'Add Reminder',
+    FormField('Title','<input id="rm_title" value="'+(c.title||'')+'">')+
+    FormField('Description','<textarea id="rm_description">'+(c.description||'')+'</textarea>')+
+    FormRow(FormField('Customer Name','<input id="rm_customer_name" value="'+(c.customer_name||'')+'">'),FormField('Customer ID','<input id="rm_customer_id" value="'+(c.customer_id||'')+'">'))+
+    FormField('Due Date','<input id="rm_due_date" type="date" value="'+((c.due_date||'').split('T')[0]||'')+'">')+
+    FormRow(FormField('Priority',makeSelect('rm_priority',c.priority||'medium',['low','medium','high','critical'])),FormField('Status',makeSelect('rm_status',c.status||'upcoming',['upcoming','due_today','overdue','completed'])))+
+    FormField('Repeat',makeSelect('rm_repeat',c.repeat||'none',['none','daily','weekly','monthly'])),
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="saveRemBtn">'+(isEdit?'Update':'Create')+'</button>'
+  );
+  document.getElementById('saveRemBtn').addEventListener('click',function(){saveReminder(id)});
+}
+async function saveReminder(id){
+  var body={title:v('rm_title'),description:v('rm_description'),customer_name:v('rm_customer_name'),customer_id:v('rm_customer_id'),due_date:v('rm_due_date')||null,priority:v('rm_priority'),status:v('rm_status'),repeat:v('rm_repeat')};
+  try{
+    if(id){await api('/api/reminders/'+id,{method:'PUT',body:JSON.stringify(body)});toast('Reminder updated')}
+    else{await api('/api/reminders',{method:'POST',body:JSON.stringify(body)});toast('Reminder created')}
+    closeModal();loadReminders();
+  }catch(e){toast(e.message,'error')}
+}
+
+// ─── INIT ───
+if(token){showApp()}else{showLogin()}
+</script>
+</body>
+</html>

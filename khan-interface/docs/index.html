@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Khan Interface — KM Car Deals</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#DC2626;--red2:#B91C1C;--dark:#0f0f0f;--sidebar:#111827;--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#16a34a;--orange:#ea580c;--blue:#2563eb;--purple:#7c3aed}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+/* Sidebar */
+#sidebar{width:240px;background:var(--sidebar);color:#fff;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:.3s}
+#sidebar.collapsed{width:64px}
+.logo{padding:16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1e293b;min-height:56px}
+.logo-icon{width:34px;height:34px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0}
+.logo-text{font-size:16px;white-space:nowrap;overflow:hidden}
+.logo-text span{color:var(--red);font-weight:900}
+.logo-text b{font-weight:700}
+.biz-tag{padding:8px 12px;border-bottom:1px solid #1e293b}
+.biz-tag div{background:rgba(220,38,38,.15);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;color:var(--red);display:flex;align-items:center;gap:6px}
+nav{flex:1;overflow-y:auto;padding:8px 6px}
+nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;transition:.15s;white-space:nowrap;overflow:hidden;margin-bottom:2px}
+nav a:hover{background:#1e293b;color:#fff}
+nav a.active{background:var(--red);color:#fff}
+nav a .icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.nav-badge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:auto}
+nav a.active .nav-badge{background:rgba(255,255,255,.25)}
+.user-area{padding:10px;border-top:1px solid #1e293b}
+.user-card{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.user-card:hover{background:#1e293b}
+.avatar{width:34px;height:34px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.user-info{overflow:hidden}
+.user-info p{font-size:13px;font-weight:600;color:#fff;white-space:nowrap}
+.user-info span{font-size:11px;color:#94a3b8}
+/* Main */
+#main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;transition:.3s}
+/* Header */
+header{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 20px;position:sticky;top:0;z-index:50}
+.search-box{flex:1;max-width:400px;background:#f1f5f9;border:1px solid var(--border);border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted)}
+.search-box kbd{background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:11px;font-family:monospace}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red2)}
+.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border)}.btn-outline:hover{background:#f8fafc}
+.btn-icon{width:36px;height:36px;padding:0;justify-content:center;background:#f8fafc;border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:16px}
+.ai-pill{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#16a34a;display:flex;align-items:center;gap:6px}
+.ai-dot{width:7px;height:7px;background:#16a34a;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.notif-btn{position:relative}
+.notif-badge{position:absolute;top:-2px;right:-2px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+/* Content */
+main{padding:24px;flex:1}
+/* Page sections */
+.page{display:none}
+.page.active{display:block}
+/* Dashboard */
+.greeting{margin-bottom:20px}
+.greeting h1{font-size:22px;font-weight:700}
+.greeting h1 span{color:var(--red)}
+.greeting p{color:var(--muted);font-size:13px;margin-top:3px}
+.alert-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.pill-red{background:#fef2f2;border:1px solid #fecaca;color:var(--red)}
+.pill-green{background:#f0fdf4;border:1px solid #bbf7d0;color:var(--green)}
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.kpi-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.kpi-val{font-size:22px;font-weight:700;line-height:1}
+.kpi-label{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi-change{font-size:11px;font-weight:600;margin-top:6px}
+.up{color:var(--green)}.down{color:var(--red)}
+/* Grid layouts */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+td{padding:11px 12px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+/* Badges */
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.badge-red{background:#fef2f2;color:var(--red)}
+.badge-green{background:#f0fdf4;color:var(--green)}
+.badge-orange{background:#fff7ed;color:var(--orange)}
+.badge-blue{background:#eff6ff;color:var(--blue)}
+.badge-purple{background:#faf5ff;color:var(--purple)}
+.badge-gray{background:#f1f5f9;color:var(--muted)}
+/* Agent cards */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.agent-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:.2s;cursor:pointer}
+.agent-card:hover{border-color:var(--red);box-shadow:0 4px 16px rgba(220,38,38,.1)}
+.agent-card.critical{border-color:#fecaca;background:#fff8f8}
+.agent-emoji{font-size:36px;margin-bottom:10px}
+.agent-name{font-size:15px;font-weight:700}
+.agent-role{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.agent-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0;text-align:center}
+.agent-stat{background:#f8fafc;border-radius:8px;padding:8px 4px}
+.agent-stat-val{font-size:18px;font-weight:700}
+.agent-stat-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.agent-last{font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.4}
+.agent-btns{display:flex;gap:8px}
+.agent-btn{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:.15s}
+.btn-primary{background:var(--red);color:#fff}.btn-primary:hover{background:var(--red2)}
+.btn-secondary{background:#f1f5f9;color:var(--text)}.btn-secondary:hover{background:#e2e8f0}
+/* Priority items */
+.priority-list{display:flex;flex-direction:column;gap:8px}
+.priority-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;cursor:pointer;transition:.15s}
+.priority-item:hover{border-color:var(--red);background:#fff8f8}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-red{background:var(--red)}
+.dot-orange{background:var(--orange)}
+.dot-yellow{background:#eab308}
+.dot-green{background:var(--green)}
+.priority-text{flex:1}
+/* Activity */
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.activity-agent{font-weight:600;font-size:12px}
+.activity-detail{color:var(--muted);margin-top:2px;line-height:1.4}
+/* Progress bar */
+.progress{background:#e2e8f0;border-radius:4px;height:6px;overflow:hidden;margin-top:6px}
+.progress-fill{background:var(--red);border-radius:4px;height:100%;transition:.3s}
+/* Stats row */
+.stat-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;flex:1;min-width:120px}
+.stat-box .val{font-size:20px;font-weight:700}
+.stat-box .lbl{font-size:11px;color:var(--muted);margin-top:3px}
+/* Chart placeholder */
+.chart-placeholder{background:linear-gradient(135deg,#fef2f2,#fff);border:1px solid #fecaca;border-radius:10px;padding:20px;text-align:center;color:var(--muted);font-size:13px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+/* Bar chart visual */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding:10px 0}
+.bar-group{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;transition:.3s}
+.bar-lbl{font-size:10px;color:var(--muted)}
+/* Vehicle card */
+.vehicle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.vehicle-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s}
+.vehicle-card:hover{border-color:var(--red);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.vehicle-img{height:130px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
+.vehicle-reg{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.9);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;font-family:monospace}
+.vehicle-info{padding:12px}
+.vehicle-name{font-size:13px;font-weight:700}
+.vehicle-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.vehicle-price{font-size:15px;font-weight:700;color:var(--red);margin-top:8px}
+/* Chat */
+.chat-area{height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:10px;background:#f8fafc;border-radius:10px;margin-bottom:12px}
+.chat-msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;white-space:pre-wrap}
+.chat-user{background:var(--red);color:#fff;align-self:flex-end;border-radius:14px 14px 2px 14px}
+.chat-agent{background:#fff;border:1px solid var(--border);align-self:flex-start;border-radius:14px 14px 14px 2px}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none}
+.chat-input:focus{border-color:var(--red)}
+.chat-send{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;font-size:13px}
+/* Responsive */
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.mobile-open{transform:translateX(0)}
+  #main{margin-left:0}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .agent-grid{grid-template-columns:1fr}
+}
+/* Page header */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.page-header h2{font-size:20px;font-weight:700}
+.page-header p{font-size:13px;color:var(--muted);margin-top:2px}
+/* Login */
+#login-page{display:flex;min-height:100vh;position:fixed;inset:0;z-index:1000;background:#fff}
+.login-left{flex:1;background:var(--red);display:flex;flex-direction:column;justify-content:space-between;padding:40px;position:relative;overflow:hidden}
+.login-left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:rgba(255,255,255,.08);border-radius:50%}
+.login-left::after{content:'';position:absolute;bottom:-100px;left:-60px;width:350px;height:350px;background:rgba(255,255,255,.06);border-radius:50%}
+.login-brand{position:relative;z-index:1}
+.login-brand h1{font-size:32px;color:#fff;font-weight:900}
+.login-brand h1 span{opacity:.7;font-weight:700}
+.login-brand p{color:rgba(255,255,255,.8);margin-top:6px;font-size:15px}
+.login-features{position:relative;z-index:1}
+.login-feature{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.login-feature-icon{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.login-feature p{color:rgba(255,255,255,.85);font-size:13px}
+.login-user{background:rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.login-user-avatar{width:44px;height:44px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff}
+.login-user p{color:#fff;font-weight:600}
+.login-user span{color:rgba(255,255,255,.65);font-size:12px}
+.login-online{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:12px;color:#86efac}
+.login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
+.login-form{width:100%;max-width:380px}
+.login-form h2{font-size:24px;font-weight:700;margin-bottom:6px}
+.login-form p{color:var(--muted);font-size:13px;margin-bottom:28px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.form-group input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;transition:.15s}
+.form-group input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+.form-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:13px}
+.form-row a{color:var(--red);text-decoration:none;font-weight:500}
+.login-btn{width:100%;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
+.login-btn:hover{background:var(--red2)}
+.demo-box{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:16px;font-size:12px;color:var(--muted)}
+.demo-box strong{color:var(--text);font-size:13px;display:block;margin-bottom:4px}
+@media(max-width:640px){.login-left{display:none}.login-right{padding:24px}}
+</style>
+</head>
+<body>
+<!-- LOGIN PAGE -->
+<div id="login-page">
+  <div class="login-left">
+    <div class="login-brand">
+      <h1>KHAN <span>INTERFACE</span></h1>
+      <p>AI-Powered Business Operating System</p>
+      <p style="font-size:12px;opacity:.7;margin-top:4px">for KM CAR DEALS</p>
+    </div>
+    <div class="login-features">
+      <div class="login-feature"><div class="login-feature-icon">🤖</div><p>7 AI Agents monitoring your business 24/7</p></div>
+      <div class="login-feature"><div class="login-feature-icon">🚗</div><p>Complete vehicle lifecycle management</p></div>
+      <div class="login-feature"><div class="login-feature-icon">🏛️</div><p>RTO & document tracking automated</p></div>
+      <div class="login-feature"><div class="login-feature-icon">💰</div><p>Real-time finance & payment tracking</p></div>
+    </div>
+    <div class="login-user">
+      <div class="login-user-avatar">NK</div>
+      <div><p>Nawaz Khan</p><span>Owner — KM Car Deals</span></div>
+      <div class="login-online"><span style="width:7px;height:7px;background:#4ade80;border-radius:50%;display:inline-block"></span> Active</div>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="login-form">
+      <h2>Welcome back, Nawaz</h2>
+      <p>Sign in to KM Car Deals Command Center</p>
+      <div class="form-group"><label>Email</label><input type="email" value="nawaz@kmcardeals.com" id="email-input"/></div>
+      <div class="form-group"><label>Password</label><input type="password" value="demo1234" id="pass-input"/></div>
+      <div class="form-row">
+        <label><input type="checkbox" checked style="accent-color:var(--red)"/> Remember me</label>
+        <a href="#">Forgot password?</a>
+      </div>
+      <button class="login-btn" onclick="doLogin()">⚡ Sign In to Khan Interface</button>
+      <div class="demo-box"><strong>Demo Credentials</strong>Email: nawaz@kmcardeals.com &nbsp;|&nbsp; Password: demo1234</div>
+    </div>
+  </div>
+</div>
+<!-- APP -->
+<div id="app" style="display:none;width:100%;display:none">
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="logo">
+    <div class="logo-icon">K</div>
+    <div class="logo-text"><span>KHAN</span> <b>INTERFACE</b></div>
+  </div>
+  <div class="biz-tag"><div>🏢 KM CAR DEALS</div></div>
+  <nav>
+    <a href="#" class="active" onclick="showPage('dashboard',this)"><span class="icon">📊</span><span>Command Center</span></a>
+    <a href="#" onclick="showPage('customers',this)"><span class="icon">👥</span><span>Customers</span></a>
+    <a href="#" onclick="showPage('vehicles',this)"><span class="icon">🚗</span><span>Vehicles</span></a>
+    <a href="#" onclick="showPage('transactions',this)"><span class="icon">↔️</span><span>Transactions</span></a>
+    <a href="#" onclick="showPage('finance',this)"><span class="icon">💰</span><span>Finance</span><span class="nav-badge">4</span></a>
+    <a href="#" onclick="showPage('payments',this)"><span class="icon">💳</span><span>Payments</span></a>
+    <a href="#" onclick="showPage('rto',this)"><span class="icon">🏛️</span><span>RTO Manager</span><span class="nav-badge">2</span></a>
+    <a href="#" onclick="showPage('sales',this)"><span class="icon">📈</span><span>Sales</span></a>
+    <a href="#" onclick="showPage('accountant',this)"><span class="icon">🧾</span><span>Accountant</span></a>
+    <a href="#" onclick="showPage('ai-agents',this)"><span class="icon">🤖</span><span>AI Team</span></a>
+    <a href="#" onclick="showPage('calendar',this)"><span class="icon">📅</span><span>Calendar</span></a>
+    <a href="#" onclick="showPage('documents',this)"><span class="icon">📁</span><span>Documents</span></a>
+    <a href="#" onclick="showPage('notifications',this)"><span class="icon">🔔</span><span>Notifications</span></a>
+    <a href="#" onclick="showPage('web3',this)"><span class="icon">🌐</span><span>Web3</span></a>
+    <a href="#" onclick="showPage('settings',this)"><span class="icon">⚙️</span><span>Settings</span></a>
+  </nav>
+  <div class="user-area">
+    <div class="user-card">
+      <div class="avatar">NK</div>
+      <div class="user-info"><p>Nawaz Khan</p><span>Admin</span></div>
+      <span style="margin-left:auto;cursor:pointer;font-size:16px" onclick="doLogout()">🚪</span>
+    </div>
+  </div>
+</div>
+<!-- MAIN -->
+<div id="main">
+  <header>
+    <button class="btn-icon" onclick="toggleSidebar()">☰</button>
+    <div class="search-box">🔍 Search customers, vehicles, RTO… <kbd>Ctrl+K</kbd></div>
+    <div class="header-right">
+      <button class="btn btn-red" onclick="showPage('dashboard',null)">＋ Add</button>
+      <div class="ai-pill"><span class="ai-dot"></span> AI Active</div>
+      <div class="notif-btn"><button class="btn-icon" onclick="showPage('notifications',null)">🔔<span class="notif-badge">8</span></button></div>
+    </div>
+  </header>
+  <main>
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="greeting">
+    <h1>Good Evening, <span>Nawaz</span> 👋</h1>
+    <p>KM Car Deals — Business Command Center &nbsp;·&nbsp; Wednesday, 12 August 2026</p>
+    <div class="alert-row">
+      <span class="pill pill-red">🔴 4 Critical Alerts</span>
+      <span class="pill pill-green">✅ AI Team Active</span>
+      <button class="btn btn-red" onclick="showPage('ai-agents',null)" style="padding:5px 14px;font-size:12px">🤖 View AI Team</button>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-icon" style="background:#eff6ff">🚗</div><div class="kpi-val">18</div><div class="kpi-label">Total Vehicles</div><div class="kpi-change up">↑ 2 this month</div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#f0fdf4">👥</div><div class="kpi-val">20</div><div class="kpi-label">Total Customers</div><div class="kpi-change up">↑ 3 active deals</div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#faf5ff">💰</div><div class="kpi-val">₹78.25L</div><div class="kpi-label">Finance Outstanding</div><div class="kpi-change down">↑ 4 overdue accounts</div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#f0fdf4">📈</div><div class="kpi-val">₹1.35L</div><div class="kpi-label">Collected (Aug)</div><div class="kpi-change up">↑ 12% vs July</div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#fff7ed">🏛️</div><div class="kpi-val">7</div><div class="kpi-label">RTO Tasks Pending</div><div class="kpi-change down">2 overdue</div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#fef2f2">🔔</div><div class="kpi-val">6</div><div class="kpi-label">Reminders Today</div><div class="kpi-change down">4 critical</div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#f0fdfa">💵</div><div class="kpi-val">₹43.5L</div><div class="kpi-label">Sales (Aug)</div><div class="kpi-change up">↑ 15%</div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#eef2ff">📊</div><div class="kpi-val">₹3.45L</div><div class="kpi-label">Est. Profit (Aug)</div><div class="kpi-change up">↑ 6%</div></div>
+  </div>
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">🔴 Today's Priorities</div>
+      <div class="priority-list">
+        <div class="priority-item" onclick="showPage('finance',null)"><span class="dot dot-red"></span><span class="priority-text">Call Ravi Mishra — Bajaj Finance 42 days overdue</span><span class="badge badge-red">Critical</span></div>
+        <div class="priority-item" onclick="showPage('rto',null)"><span class="dot dot-red"></span><span class="priority-text">Kotak NOC missing — XUV700 deadline 20 Aug</span><span class="badge badge-red">Critical</span></div>
+        <div class="priority-item" onclick="showPage('finance',null)"><span class="dot dot-red"></span><span class="priority-text">Meena Verma — SBI Bank 41 days overdue</span><span class="badge badge-red">Critical</span></div>
+        <div class="priority-item" onclick="showPage('finance',null)"><span class="dot dot-orange"></span><span class="priority-text">Priya Mehta — ICICI Bank 33 days overdue</span><span class="badge badge-orange">High</span></div>
+        <div class="priority-item" onclick="showPage('finance',null)"><span class="dot dot-orange"></span><span class="priority-text">Abdul Hamid — Bajaj Finance threatening legal</span><span class="badge badge-orange">High</span></div>
+        <div class="priority-item" onclick="showPage('rto',null)"><span class="dot dot-orange"></span><span class="priority-text">HDFC NOC — Toyota Hyryder KA05MN3344</span><span class="badge badge-orange">High</span></div>
+        <div class="priority-item" onclick="showPage('payments',null)"><span class="dot dot-yellow"></span><span class="priority-text">Farhan Siddiqui EMI ₹45,000 due 18 Aug</span><span class="badge badge-gray">Medium</span></div>
+        <div class="priority-item" onclick="showPage('vehicles',null)"><span class="dot dot-green"></span><span class="priority-text">Maruti Baleno — Ready for sale</span><span class="badge badge-green">Listed</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🤖 AI Team Activity</div>
+      <div class="priority-list">
+        <div class="activity-item"><span class="activity-dot dot-red"></span><div><div class="activity-agent">Finance Agent · Overdue Alert</div><div class="activity-detail">Priya Mehta — ICICI EMI overdue 33 days. ₹15,000 pending.</div></div></div>
+        <div class="activity-item"><span class="activity-dot dot-red"></span><div><div class="activity-agent">Finance Agent · Overdue Alert</div><div class="activity-detail">Ravi Mishra — Bajaj Finance 42 days. ₹14,000.</div></div></div>
+        <div class="activity-item"><span class="activity-dot dot-red"></span><div><div class="activity-agent">RTO Agent · Critical Task</div><div class="activity-detail">TS09GH6677 — Kotak NOC missing. Deadline 20 Aug.</div></div></div>
+        <div class="activity-item"><span class="activity-dot" style="background:var(--orange)"></span><div><div class="activity-agent">Sales Agent · Follow-up</div><div class="activity-detail">Imran Khan Pathan — Finance pending. 4 days no contact.</div></div></div>
+        <div class="activity-item"><span class="activity-dot" style="background:var(--orange)"></span><div><div class="activity-agent">Customer Agent · Follow-up</div><div class="activity-detail">Abdul Hamid Sheikh — No contact for 33 days.</div></div></div>
+        <div class="activity-item"><span class="activity-dot dot-yellow"></span><div><div class="activity-agent">Vehicle Agent · Alert</div><div class="activity-detail">DL8CAK7788 Venue — Repair in progress. 3 more days.</div></div></div>
+        <div class="activity-item"><span class="activity-dot dot-green"></span><div><div class="activity-agent">Accountant Agent · Report</div><div class="activity-detail">August collections: ₹1,35,500. Outstanding: ₹78,25,000.</div></div></div>
+        <div class="activity-item"><span class="activity-dot dot-green"></span><div><div class="activity-agent">Business Manager · Briefing</div><div class="activity-detail">Morning briefing generated. 24 priority tasks for today.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">📊 Monthly Performance (₹ Lakhs)</div>
+    <div class="bar-chart">
+      <div class="bar-group"><div class="bar" style="background:var(--red);height:60%"></div><div class="bar-lbl">Mar</div></div>
+      <div class="bar-group"><div class="bar" style="background:var(--red);height:70%"></div><div class="bar-lbl">Apr</div></div>
+      <div class="bar-group"><div class="bar" style="background:var(--red);height:55%"></div><div class="bar-lbl">May</div></div>
+      <div class="bar-group"><div class="bar" style="background:var(--red);height:85%"></div><div class="bar-lbl">Jun</div></div>
+      <div class="bar-group"><div class="bar" style="background:var(--red);height:90%"></div><div class="bar-lbl">Jul</div></div>
+      <div class="bar-group"><div class="bar" style="background:var(--red);height:95%"></div><div class="bar-lbl">Aug</div></div>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card" style="cursor:pointer" onclick="showPage('customers',null)"><div style="font-size:28px">👥</div><div class="kpi-val" style="margin-top:8px">20</div><div class="kpi-label">Customers</div></div>
+    <div class="card" style="cursor:pointer" onclick="showPage('vehicles',null)"><div style="font-size:28px">🚗</div><div class="kpi-val" style="margin-top:8px">18</div><div class="kpi-label">Vehicles</div></div>
+    <div class="card" style="cursor:pointer" onclick="showPage('finance',null)"><div style="font-size:28px">💰</div><div class="kpi-val" style="margin-top:8px">10</div><div class="kpi-label">Finance Accounts</div></div>
+    <div class="card" style="cursor:pointer" onclick="showPage('rto',null)"><div style="font-size:28px">🏛️</div><div class="kpi-val" style="margin-top:8px">7</div><div class="kpi-label">RTO Tasks</div></div>
+    <div class="card" style="cursor:pointer" onclick="showPage('ai-agents',null)"><div style="font-size:28px">🤖</div><div class="kpi-val" style="margin-top:8px">7</div><div class="kpi-label">AI Agents</div></div>
+    <div class="card" style="cursor:pointer" onclick="showPage('calendar',null)"><div style="font-size:28px">📅</div><div class="kpi-val" style="margin-top:8px">15</div><div class="kpi-label">Events</div></div>
+  </div>
+</div>
+<!-- CUSTOMERS -->
+<div class="page" id="page-customers">
+  <div class="page-header"><div><h2>Customers</h2><p>20 total customers</p></div><button class="btn btn-red">＋ Add Customer</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val">20</div><div class="lbl">Total</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">14</div><div class="lbl">Active</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--red)">4</div><div class="lbl">Overdue</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--purple)">₹78.25L</div><div class="lbl">Outstanding</div></div>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Customer</th><th>Phone</th><th>Vehicle</th><th>EMI</th><th>Outstanding</th><th>Status</th></tr>
+      <tr><td><b>Rajesh Kumar Sharma</b><br><small style="color:var(--muted)">KHN-C001</small></td><td>9876543210</td><td>2021 Maruti Swift VXI<br><small style="font-family:monospace">UP16CG2345</small></td><td>₹12,500 · HDFC Bank</td><td>₹2,00,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Priya Mehta</b><br><small style="color:var(--muted)">KHN-C002</small></td><td>9823456781</td><td>2020 Hyundai i20 Asta<br><small style="font-family:monospace">DL3CAB5678</small></td><td>₹15,000 · ICICI Bank</td><td>₹3,00,000</td><td><span class="badge badge-red">🔴 Overdue 33d</span></td></tr>
+      <tr><td><b>Mohammed Arif Khan</b><br><small style="color:var(--muted)">KHN-C003</small></td><td>9712345678</td><td>2022 Honda City ZX CVT<br><small style="font-family:monospace">KA01MH9988</small></td><td>₹22,000 · Kotak Bank</td><td>₹5,00,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Vikram Singh Rathore</b><br><small style="color:var(--muted)">KHN-C005</small></td><td>9345678901</td><td>2023 Tata Nexon XZ+<br><small style="font-family:monospace">RJ14LM7890</small></td><td>₹28,000 · SBI Bank</td><td>₹8,50,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Abdul Hamid Sheikh</b><br><small style="color:var(--muted)">KHN-C007</small></td><td>9234567890</td><td>2018 Ford EcoSport<br><small style="font-family:monospace">MH31KK2211</small></td><td>₹16,500 · Bajaj Finance</td><td>₹4,00,000</td><td><span class="badge badge-red">🔴 Overdue 36d</span></td></tr>
+      <tr><td><b>Deepika Nair</b><br><small style="color:var(--muted)">KHN-C008</small></td><td>9456789012</td><td>2022 Kia Seltos HTX<br><small style="font-family:monospace">KL07BS3344</small></td><td>₹32,000 · HDFC Bank</td><td>₹10,00,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Santosh Yadav</b><br><small style="color:var(--muted)">KHN-C009</small></td><td>9387654321</td><td>2021 Hyundai Creta SX<br><small style="font-family:monospace">DL9CK4455</small></td><td>₹24,000 · ICICI Bank</td><td>₹9,80,000</td><td><span class="badge badge-orange">Pending</span></td></tr>
+      <tr><td><b>Farhan Akhtar Siddiqui</b><br><small style="color:var(--muted)">KHN-C010</small></td><td>9678901234</td><td>2023 Mahindra XUV700<br><small style="font-family:monospace">TS09GH6677</small></td><td>₹45,000 · Kotak Bank</td><td>₹12,50,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Ravi Shankar Mishra</b><br><small style="color:var(--muted)">KHN-C012</small></td><td>9823401234</td><td>2020 Honda Amaze CVT<br><small style="font-family:monospace">UP70CD5678</small></td><td>₹14,000 · Bajaj Finance</td><td>₹4,50,000</td><td><span class="badge badge-red">🔴 Overdue 42d</span></td></tr>
+      <tr><td><b>Meena Kumari Verma</b><br><small style="color:var(--muted)">KHN-C018</small></td><td>9734567890</td><td>2020 Maruti Ertiga CNG</td><td>₹18,000 · SBI Bank</td><td>₹6,00,000</td><td><span class="badge badge-red">🔴 Overdue 41d</span></td></tr>
+      <tr><td><b>Sana Fatima Qureshi</b><br><small style="color:var(--muted)">KHN-C020</small></td><td>9967012345</td><td>2023 Hyundai Venue S+</td><td>Awaiting finance approval</td><td>₹8,50,000</td><td><span class="badge badge-orange">Pending</span></td></tr>
+    </table>
+  </div>
+</div>
+<!-- VEHICLES -->
+<div class="page" id="page-vehicles">
+  <div class="page-header"><div><h2>Vehicles</h2><p>18 vehicles · 2 available for sale</p></div><button class="btn btn-red">＋ Add Vehicle</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val">18</div><div class="lbl">Total</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">1</div><div class="lbl">Listed for Sale</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--orange)">1</div><div class="lbl">In Repair</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--red)">1</div><div class="lbl">In RTO Process</div></div>
+  </div>
+  <div class="vehicle-grid">
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">MH04EF5566</span></div><div class="vehicle-info"><div class="vehicle-name">2022 Maruti Suzuki Baleno Alpha</div><div class="vehicle-sub">Petrol · Manual · 20,000 km · 1st Owner</div><div class="vehicle-price">₹8,70,000 <span class="badge badge-green">Listed</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">DL8CAK7788</span></div><div class="vehicle-info"><div class="vehicle-name">2023 Hyundai Venue SX+ DCT</div><div class="vehicle-sub">Petrol · Auto · 8,000 km · 1st Owner</div><div class="vehicle-price">₹11,20,000 <span class="badge badge-orange">Repair</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">KA32AB1234</span></div><div class="vehicle-info"><div class="vehicle-name">2019 Toyota Innova Crysta GX</div><div class="vehicle-sub">Diesel · Manual · 95,000 km · 2nd Owner</div><div class="vehicle-price">₹15,50,000 <span class="badge badge-blue">RTO Process</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">TS09GH6677</span></div><div class="vehicle-info"><div class="vehicle-name">2023 Mahindra XUV700 AX7 AWD</div><div class="vehicle-sub">Diesel · Auto · 12,000 km · 1st Owner</div><div class="vehicle-price">₹24,50,000 <span class="badge badge-green">Delivered</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">KA05MN3344</span></div><div class="vehicle-info"><div class="vehicle-name">2022 Toyota Urban Cruiser Hyryder G</div><div class="vehicle-sub">Hybrid · Auto · 15,000 km · 1st Owner</div><div class="vehicle-price">₹18,20,000 <span class="badge badge-green">Delivered</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">KL07BS3344</span></div><div class="vehicle-info"><div class="vehicle-name">2022 Kia Seltos HTX 1.5 Petrol</div><div class="vehicle-sub">Petrol · CVT · 22,000 km · 1st Owner</div><div class="vehicle-price">₹16,80,000 <span class="badge badge-green">Delivered</span></div></div></div>
+  </div>
+</div>
+<!-- CUSTOMERS -->
+<div class="page" id="page-customers">
+  <div class="page-header"><div><h2>Customers</h2><p>20 total customers</p></div><button class="btn btn-red">＋ Add Customer</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val">20</div><div class="lbl">Total</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">14</div><div class="lbl">Active</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--red)">4</div><div class="lbl">Overdue</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--purple)">₹78.25L</div><div class="lbl">Outstanding</div></div>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Customer</th><th>Vehicle</th><th>Finance</th><th>EMI</th><th>Outstanding</th><th>Status</th></tr>
+      <tr><td><b>Rajesh Kumar Sharma</b><br><small style="color:var(--muted)">KHN-C001 · 9876543210</small></td><td>2021 Maruti Swift VXI<br><small style="font-family:monospace">UP16CG2345</small></td><td>HDFC Bank<br><small>Suresh Verma</small></td><td>₹12,500</td><td>₹2,00,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Priya Mehta</b><br><small style="color:var(--muted)">KHN-C002 · 9823456781</small></td><td>2020 Hyundai i20 Asta<br><small style="font-family:monospace">DL3CAB5678</small></td><td>ICICI Bank<br><small>Ramesh Gupta</small></td><td>₹15,000</td><td>₹3,00,000</td><td><span class="badge badge-red">🔴 Overdue 33d</span></td></tr>
+      <tr><td><b>Mohammed Arif Khan</b><br><small style="color:var(--muted)">KHN-C003 · 9712345678</small></td><td>2022 Honda City ZX CVT<br><small style="font-family:monospace">KA01MH9988</small></td><td>Kotak Bank<br><small>Kavitha Nair</small></td><td>₹22,000</td><td>₹5,00,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Vikram Singh Rathore</b><br><small style="color:var(--muted)">KHN-C005 · 9345678901</small></td><td>2023 Tata Nexon XZ+ Diesel<br><small style="font-family:monospace">RJ14LM7890</small></td><td>SBI Bank<br><small>Dinesh Sharma</small></td><td>₹28,000</td><td>₹8,50,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Anita Joshi</b><br><small style="color:var(--muted)">KHN-C006 · 9567890123</small></td><td>2020 VW Polo Comfortline<br><small style="font-family:monospace">MH12PP4321</small></td><td>Axis Bank<br><small>Pooja Patil</small></td><td>₹13,500</td><td>₹2,50,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Abdul Hamid Sheikh</b><br><small style="color:var(--muted)">KHN-C007 · 9234567890</small></td><td>2018 Ford EcoSport Titanium<br><small style="font-family:monospace">MH31KK2211</small></td><td>Bajaj Finance<br><small>Kiran Wankhede</small></td><td>₹16,500</td><td>₹4,00,000</td><td><span class="badge badge-red">🔴 Overdue 36d</span></td></tr>
+      <tr><td><b>Deepika Nair</b><br><small style="color:var(--muted)">KHN-C008 · 9456789012</small></td><td>2022 Kia Seltos HTX<br><small style="font-family:monospace">KL07BS3344</small></td><td>HDFC Bank<br><small>Arun Pillai</small></td><td>₹32,000</td><td>₹10,00,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Santosh Yadav</b><br><small style="color:var(--muted)">KHN-C009 · 9387654321</small></td><td>2021 Hyundai Creta SX<br><small style="font-family:monospace">DL9CK4455</small></td><td>ICICI Bank<br><small>Ramesh Gupta</small></td><td>₹24,000</td><td>₹9,80,000</td><td><span class="badge badge-orange">Pending</span></td></tr>
+      <tr><td><b>Farhan Akhtar Siddiqui</b><br><small style="color:var(--muted)">KHN-C010 · 9678901234</small></td><td>2023 Mahindra XUV700 AX7<br><small style="font-family:monospace">TS09GH6677</small></td><td>Kotak Bank<br><small>Kavitha Nair</small></td><td>₹45,000</td><td>₹12,50,000</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Ravi Shankar Mishra</b><br><small style="color:var(--muted)">KHN-C012 · 9823401234</small></td><td>2020 Honda Amaze S CVT<br><small style="font-family:monospace">UP70CD5678</small></td><td>Bajaj Finance<br><small>Kiran Wankhede</small></td><td>₹14,000</td><td>₹4,50,000</td><td><span class="badge badge-red">🔴 Overdue 42d</span></td></tr>
+      <tr><td><b>Meena Kumari Verma</b><br><small style="color:var(--muted)">KHN-C018 · 9734567890</small></td><td>2020 Maruti Ertiga VXI CNG</td><td>SBI Bank<br><small>Dinesh Sharma</small></td><td>₹18,000</td><td>₹6,00,000</td><td><span class="badge badge-red">🔴 Overdue 41d</span></td></tr>
+      <tr><td><b>Sana Fatima Qureshi</b><br><small style="color:var(--muted)">KHN-C020 · 9967012345</small></td><td>2023 Hyundai Venue S+</td><td>HDFC Bank<br><small>Suresh Verma</small></td><td>Pending approval</td><td>₹8,50,000</td><td><span class="badge badge-orange">Pending</span></td></tr>
+    </table>
+  </div>
+</div>
+<!-- VEHICLES -->
+<div class="page" id="page-vehicles">
+  <div class="page-header"><div><h2>Vehicles</h2><p>18 vehicles · 2 available</p></div><button class="btn btn-red">＋ Add Vehicle</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val">18</div><div class="lbl">Total</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">1</div><div class="lbl">Listed for Sale</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--orange)">1</div><div class="lbl">In Repair</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--red)">1</div><div class="lbl">RTO Process</div></div>
+  </div>
+  <div class="vehicle-grid">
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">MH04EF5566</span></div><div class="vehicle-info"><div class="vehicle-name">2022 Maruti Suzuki Baleno Alpha</div><div class="vehicle-sub">Petrol · Manual · 20,000 km · 1st Owner</div><div class="vehicle-price">₹8,70,000 <span class="badge badge-green">Listed</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">DL8CAK7788</span></div><div class="vehicle-info"><div class="vehicle-name">2023 Hyundai Venue SX+ DCT</div><div class="vehicle-sub">Petrol · Auto · 8,000 km · 1st Owner</div><div class="vehicle-price">₹11,20,000 <span class="badge badge-orange">Repair</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">KA32AB1234</span></div><div class="vehicle-info"><div class="vehicle-name">2019 Toyota Innova Crysta GX Diesel</div><div class="vehicle-sub">Diesel · Manual · 95,000 km · 2nd Owner</div><div class="vehicle-price">₹15,50,000 <span class="badge badge-blue">RTO Process</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">TS09GH6677</span></div><div class="vehicle-info"><div class="vehicle-name">2023 Mahindra XUV700 AX7 AWD</div><div class="vehicle-sub">Diesel · Auto · 12,000 km · 1st Owner</div><div class="vehicle-price">₹24,50,000 <span class="badge badge-green">Delivered</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">KA05MN3344</span></div><div class="vehicle-info"><div class="vehicle-name">2022 Toyota Urban Cruiser Hyryder G</div><div class="vehicle-sub">Hybrid · Auto · 15,000 km · 1st Owner</div><div class="vehicle-price">₹18,20,000 <span class="badge badge-green">Delivered</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">KL07BS3344</span></div><div class="vehicle-info"><div class="vehicle-name">2022 Kia Seltos HTX 1.5 Petrol</div><div class="vehicle-sub">Petrol · CVT · 22,000 km · 1st Owner</div><div class="vehicle-price">₹16,80,000 <span class="badge badge-green">Delivered</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">DL9CK4455</span></div><div class="vehicle-info"><div class="vehicle-name">2021 Hyundai Creta SX Diesel</div><div class="vehicle-sub">Diesel · Manual · 35,000 km · 1st Owner</div><div class="vehicle-price">₹12,80,000 <span class="badge badge-orange">Finance Pending</span></div></div></div>
+    <div class="vehicle-card"><div class="vehicle-img">🚗<span class="vehicle-reg">RJ14LM7890</span></div><div class="vehicle-info"><div class="vehicle-name">2023 Tata Nexon XZ+ Dark Diesel</div><div class="vehicle-sub">Diesel · Manual · 18,000 km · 1st Owner</div><div class="vehicle-price">₹13,50,000 <span class="badge badge-green">Delivered</span></div></div></div>
+  </div>
+</div>
+<!-- FINANCE -->
+<div class="page" id="page-finance">
+  <div class="page-header"><div><h2>Finance Management</h2><p>10 accounts · 4 overdue</p></div><button class="btn btn-red">＋ Add Finance</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val" style="color:var(--red)">₹78.25L</div><div class="lbl">Total Outstanding</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">₹34.8L</div><div class="lbl">Total Collected</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--orange)">4</div><div class="lbl">Overdue Accounts</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--purple)">₹70,000</div><div class="lbl">Commission Pending</div></div>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Customer</th><th>Vehicle</th><th>Finance Company</th><th>EMI</th><th>Paid</th><th>Outstanding</th><th>Next Payment</th><th>Status</th></tr>
+      <tr><td><b>Rajesh Kumar Sharma</b></td><td>Maruti Swift VXI</td><td>HDFC Bank · Suresh Verma</td><td>₹12,500</td><td>20/36</td><td>₹2,00,000</td><td>5 Aug 2026</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr style="background:#fff8f8"><td><b>Priya Mehta</b></td><td>Hyundai i20 Asta</td><td>ICICI Bank · Ramesh Gupta</td><td>₹15,000</td><td>28/48</td><td>₹3,00,000</td><td><b style="color:var(--red)">OVERDUE 33d</b></td><td><span class="badge badge-red">🔴 Overdue</span></td></tr>
+      <tr><td><b>Mohammed Arif Khan</b></td><td>Honda City ZX CVT</td><td>Kotak Bank · Kavitha Nair</td><td>₹22,000</td><td>22/60</td><td>₹8,36,000</td><td>15 Aug 2026</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Vikram Singh Rathore</b></td><td>Tata Nexon XZ+</td><td>SBI Bank · Dinesh Sharma</td><td>₹28,000</td><td>12/60</td><td>₹13,44,000</td><td>20 Aug 2026</td><td><span class="badge badge-orange">Comm. Pending</span></td></tr>
+      <tr><td><b>Anita Joshi</b></td><td>VW Polo</td><td>Axis Bank · Pooja Patil</td><td>₹13,500</td><td>18/36</td><td>₹2,43,000</td><td>3 Sep 2026</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr style="background:#fff8f8"><td><b>Abdul Hamid Sheikh</b></td><td>Ford EcoSport</td><td>Bajaj Finance · Kiran Wankhede</td><td>₹16,500</td><td>23/48</td><td>₹4,12,500</td><td><b style="color:var(--red)">OVERDUE 36d</b></td><td><span class="badge badge-red">🔴 Overdue</span></td></tr>
+      <tr><td><b>Deepika Nair</b></td><td>Kia Seltos HTX</td><td>HDFC Bank · Arun Pillai</td><td>₹32,000</td><td>31/60</td><td>₹9,28,000</td><td>12 Sep 2026</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><b>Santosh Yadav</b></td><td>Hyundai Creta SX</td><td>ICICI Bank · Ramesh Gupta</td><td>₹24,000</td><td>0/48</td><td>₹10,00,000</td><td>25 Aug 2026</td><td><span class="badge badge-orange">Pending</span></td></tr>
+      <tr><td><b>Farhan Akhtar Siddiqui</b></td><td>Mahindra XUV700</td><td>Kotak Bank · Kavitha Nair</td><td>₹45,000</td><td>10/60</td><td>₹22,50,000</td><td>18 Aug 2026</td><td><span class="badge badge-orange">Comm. Pending</span></td></tr>
+      <tr style="background:#fff8f8"><td><b>Ravi Shankar Mishra</b></td><td>Honda Amaze CVT</td><td>Bajaj Finance · Kiran Wankhede</td><td>₹14,000</td><td>18/48</td><td>₹4,20,000</td><td><b style="color:var(--red)">OVERDUE 42d</b></td><td><span class="badge badge-red">🔴 Overdue</span></td></tr>
+    </table>
+  </div>
+</div>
+<!-- RTO -->
+<div class="page" id="page-rto">
+  <div class="page-header"><div><h2>RTO Manager</h2><p>7 tasks · 2 critical</p></div><button class="btn btn-red">＋ New RTO Task</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val" style="color:var(--orange)">5</div><div class="lbl">Pending</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--red)">2</div><div class="lbl">Critical</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--orange)">3</div><div class="lbl">Docs Pending</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">2</div><div class="lbl">Completed</div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="card" style="border-color:#fecaca;background:#fff8f8">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-family:monospace;font-weight:700;font-size:15px">TS09GH6677</span><span class="badge badge-red">🔴 Critical</span><span class="badge badge-orange">Docs Pending</span></div><div style="color:var(--muted);font-size:13px;margin-top:4px">2023 Mahindra XUV700 AX7 AWD · Farhan Akhtar Siddiqui</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Task: Ownership Transfer · RTO Hyderabad (TS-09) · Agent: Srinivas Reddy</div></div>
+        <div style="text-align:right"><div style="font-size:12px;color:var(--muted)">Deadline</div><div style="font-weight:700;color:var(--red)">20 Aug 2026</div></div>
+      </div>
+      <div style="margin-top:12px"><div style="font-size:12px;font-weight:600;margin-bottom:6px">Documents:</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge badge-green">✓ Form 29</span><span class="badge badge-green">✓ Form 30</span><span class="badge badge-green">✓ Original RC</span><span class="badge badge-red">✗ Kotak NOC (MISSING)</span><span class="badge badge-green">✓ Insurance</span><span class="badge badge-green">✓ Buyer Aadhaar</span></div></div>
+      <div style="background:#fff0f0;border-radius:8px;padding:10px;margin-top:10px;font-size:12px;color:var(--red)">⚠️ CRITICAL: Kotak Bank NOC missing. RC transfer deadline approaching. Call Kavitha Nair: 9933445566</div>
+    </div>
+    <div class="card" style="border-color:#fed7aa">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-family:monospace;font-weight:700;font-size:15px">KA05MN3344</span><span class="badge badge-orange">High</span><span class="badge badge-orange">Docs Pending</span></div><div style="color:var(--muted);font-size:13px;margin-top:4px">2022 Toyota Hyryder G Hybrid · Kavitha Subramaniam</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Task: Hypothecation Removal · RTO Bangalore South (KA-05) · Agent: Hussain Basha</div></div>
+        <div style="text-align:right"><div style="font-size:12px;color:var(--muted)">Expected</div><div style="font-weight:700">15 Sep 2026</div></div>
+      </div>
+      <div style="margin-top:12px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge badge-red">✗ Form 35 (needs NOC first)</span><span class="badge badge-green">✓ Original RC</span><span class="badge badge-red">✗ HDFC NOC (Expected 20 Aug)</span></div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-family:monospace;font-weight:700;font-size:15px">KA32AB1234</span><span class="badge badge-blue">High</span><span class="badge badge-blue">Submitted</span></div><div style="color:var(--muted);font-size:13px;margin-top:4px">2019 Toyota Innova Crysta GX Diesel</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Task: RC Transfer · RTO Bangalore West (KA-01) · Agent: Hussain Basha · Submitted: 5 Aug 2026</div></div>
+        <div style="text-align:right"><div style="font-size:12px;color:var(--muted)">Expected</div><div style="font-weight:700">25 Aug 2026</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--muted)">All documents submitted. Awaiting RTO processing.</div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-family:monospace;font-weight:700;font-size:15px">MH12PP4321</span><span class="badge badge-orange">Medium</span><span class="badge badge-orange">In Progress</span></div><div style="color:var(--muted);font-size:13px;margin-top:4px">2020 VW Polo Comfortline · Anita Joshi · RTO Pune (MH-12)</div></div>
+        <div style="text-align:right"><div style="font-size:12px;font-weight:700;color:var(--orange)">7+ Months Pending!</div></div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--red)">Submitted Jan 2025. Still in progress. Follow up urgently with Prakash More.</div>
+    </div>
+  </div>
+</div>
+<!-- PAYMENTS -->
+<div class="page" id="page-payments">
+  <div class="page-header"><div><h2>Payments</h2><p>11 payment records</p></div><button class="btn btn-red">＋ Add Payment</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val" style="color:var(--red)">4</div><div class="lbl">Overdue</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--orange)">1</div><div class="lbl">Due Today</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--blue)">5</div><div class="lbl">Upcoming</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">1</div><div class="lbl">Paid</div></div>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Customer</th><th>Vehicle</th><th>Finance Co.</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
+      <tr style="background:#fff8f8"><td><b>Priya Mehta</b></td><td>Hyundai i20 Asta</td><td>ICICI Bank</td><td>₹15,000</td><td style="color:var(--red)"><b>10 Jul 2026 (Overdue 33d)</b></td><td><span class="badge badge-red">🔴 Overdue</span></td><td><button class="btn btn-red" style="padding:4px 10px;font-size:11px">Mark Paid</button></td></tr>
+      <tr style="background:#fff8f8"><td><b>Abdul Hamid Sheikh</b></td><td>Ford EcoSport</td><td>Bajaj Finance</td><td>₹16,500</td><td style="color:var(--red)"><b>7 Jul 2026 (Overdue 36d)</b></td><td><span class="badge badge-red">🔴 Overdue</span></td><td><button class="btn btn-red" style="padding:4px 10px;font-size:11px">Mark Paid</button></td></tr>
+      <tr style="background:#fff8f8"><td><b>Ravi Shankar Mishra</b></td><td>Honda Amaze CVT</td><td>Bajaj Finance</td><td>₹14,000</td><td style="color:var(--red)"><b>1 Jul 2026 (Overdue 42d)</b></td><td><span class="badge badge-red">🔴 Overdue</span></td><td><button class="btn btn-red" style="padding:4px 10px;font-size:11px">Mark Paid</button></td></tr>
+      <tr style="background:#fff8f8"><td><b>Meena Kumari Verma</b></td><td>Maruti Ertiga CNG</td><td>SBI Bank</td><td>₹18,000</td><td style="color:var(--red)"><b>2 Jul 2026 (Overdue 41d)</b></td><td><span class="badge badge-red">🔴 Overdue</span></td><td><button class="btn btn-red" style="padding:4px 10px;font-size:11px">Mark Paid</button></td></tr>
+      <tr style="background:#fffbeb"><td><b>Rajesh Kumar Sharma</b></td><td>Maruti Swift VXI</td><td>HDFC Bank</td><td>₹12,500</td><td style="color:var(--orange)"><b>5 Aug 2026 (Due Today)</b></td><td><span class="badge badge-orange">Due Today</span></td><td><button class="btn btn-red" style="padding:4px 10px;font-size:11px">Mark Paid</button></td></tr>
+      <tr><td><b>Mohammed Arif Khan</b></td><td>Honda City CVT</td><td>Kotak Bank</td><td>₹22,000</td><td>15 Aug 2026</td><td><span class="badge badge-blue">Upcoming</span></td><td><button class="btn-outline btn" style="padding:4px 10px;font-size:11px">Remind</button></td></tr>
+      <tr><td><b>Farhan Akhtar Siddiqui</b></td><td>Mahindra XUV700</td><td>Kotak Bank</td><td>₹45,000</td><td>18 Aug 2026</td><td><span class="badge badge-blue">Upcoming</span></td><td><button class="btn-outline btn" style="padding:4px 10px;font-size:11px">Remind</button></td></tr>
+      <tr><td><b>Vikram Singh Rathore</b></td><td>Tata Nexon XZ+</td><td>SBI Bank</td><td>₹28,000</td><td>20 Aug 2026</td><td><span class="badge badge-blue">Upcoming</span></td><td><button class="btn-outline btn" style="padding:4px 10px;font-size:11px">Remind</button></td></tr>
+      <tr><td><b>Santosh Yadav</b></td><td>Hyundai Creta SX</td><td>ICICI Bank</td><td>₹24,000</td><td>25 Aug 2026</td><td><span class="badge badge-blue">Upcoming</span></td><td><button class="btn-outline btn" style="padding:4px 10px;font-size:11px">Remind</button></td></tr>
+      <tr><td><b>Sana Fatima Qureshi</b></td><td>Hyundai Venue S+</td><td>HDFC Bank</td><td>₹2,00,000</td><td>5 Aug 2026</td><td><span class="badge badge-green">✅ Paid</span></td><td>—</td></tr>
+    </table>
+  </div>
+</div>
+<!-- TRANSACTIONS -->
+<div class="page" id="page-transactions">
+  <div class="page-header"><div><h2>Transactions</h2><p>10 recent transactions</p></div><button class="btn btn-red">＋ Add Transaction</button></div>
+  <div class="card">
+    <table>
+      <tr><th>ID</th><th>Date</th><th>Description</th><th>Type</th><th>Method</th><th>Amount</th><th>Status</th></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-010</td><td>18 Jul 2026</td><td>EMI July 2026 — Farhan Siddiqui</td><td><span class="badge badge-green">Payment</span></td><td>UPI</td><td style="color:var(--green);font-weight:700">+₹45,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-009</td><td>1 Jul 2026</td><td>Vehicle Purchase — Toyota Innova KA32AB1234</td><td><span class="badge badge-red">Purchase</span></td><td>NEFT</td><td style="color:var(--red);font-weight:700">-₹12,00,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-008</td><td>15 Jul 2026</td><td>Vehicle Purchase — Hyundai Venue DL8CAK7788</td><td><span class="badge badge-red">Purchase</span></td><td>NEFT</td><td style="color:var(--red);font-weight:700">-₹9,00,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-007</td><td>1 Aug 2026</td><td>Body Repair — Hyundai Venue DL8CAK7788</td><td><span class="badge badge-orange">Expense</span></td><td>Cash</td><td style="color:var(--red);font-weight:700">-₹15,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-006</td><td>8 Aug 2026</td><td>Finance Disbursement — Santosh Yadav ICICI</td><td><span class="badge badge-blue">Finance</span></td><td>NEFT</td><td style="color:var(--green);font-weight:700">+₹10,00,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-005</td><td>5 Aug 2026</td><td>Advance — Sana Fatima Qureshi</td><td><span class="badge badge-green">Advance</span></td><td>NEFT</td><td style="color:var(--green);font-weight:700">+₹2,00,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-004</td><td>15 Jul 2026</td><td>EMI July 2026 — Mohammed Arif Khan</td><td><span class="badge badge-green">Payment</span></td><td>NEFT</td><td style="color:var(--green);font-weight:700">+₹22,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-003</td><td>5 Jul 2026</td><td>EMI July 2026 — Rajesh Kumar Sharma</td><td><span class="badge badge-green">Payment</span></td><td>UPI</td><td style="color:var(--green);font-weight:700">+₹12,500</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-002</td><td>15 Jan 2024</td><td>Vehicle Sale — Rajesh Sharma (Maruti Swift)</td><td><span class="badge badge-blue">Sale</span></td><td>Finance</td><td style="color:var(--green);font-weight:700">+₹5,50,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+      <tr><td style="font-family:monospace;font-size:11px">KHN-TXN-001</td><td>10 Jan 2024</td><td>Vehicle Purchase — Maruti Swift UP16CG2345</td><td><span class="badge badge-red">Purchase</span></td><td>NEFT</td><td style="color:var(--red);font-weight:700">-₹4,20,000</td><td><span class="badge badge-green">Completed</span></td></tr>
+    </table>
+  </div>
+</div>
+<!-- AI AGENTS -->
+<div class="page" id="page-ai-agents">
+  <div class="page-header"><div><h2>🤖 My AI Team</h2><p>7 AI agents monitoring KM Car Deals 24/7</p></div><button class="btn btn-red">⚡ Run All Agents</button></div>
+  <div class="agent-grid">
+    <div class="agent-card critical"><div class="agent-emoji">🏛️</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="agent-name">RTO Agent</div><span class="badge badge-red">🔴 Attention!</span></div><div class="agent-role">Vehicle Registration & RTO Operations Manager</div><div class="agent-stats"><div class="agent-stat"><div class="agent-stat-val" style="color:var(--red)">3</div><div class="agent-stat-lbl">Alerts</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">5</div><div class="agent-stat-lbl">Pending</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--green)">47</div><div class="agent-stat-lbl">Done</div></div></div><div class="agent-last">Found 2 critical RTO tasks requiring immediate action</div><div class="agent-btns"><button class="agent-btn btn-primary" onclick="openChat('rto')">💬 Open Chat</button><button class="agent-btn btn-secondary">▶ Run</button></div></div>
+    <div class="agent-card critical"><div class="agent-emoji">💰</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="agent-name">Finance Agent</div><span class="badge badge-red">🔴 Attention!</span></div><div class="agent-role">Finance & Receivables Manager</div><div class="agent-stats"><div class="agent-stat"><div class="agent-stat-val" style="color:var(--red)">4</div><div class="agent-stat-lbl">Alerts</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">8</div><div class="agent-stat-lbl">Pending</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--green)">156</div><div class="agent-stat-lbl">Done</div></div></div><div class="agent-last">4 overdue payments totaling ₹63,500</div><div class="agent-btns"><button class="agent-btn btn-primary" onclick="openChat('finance')">💬 Open Chat</button><button class="agent-btn btn-secondary">▶ Run</button></div></div>
+    <div class="agent-card"><div class="agent-emoji">🚗</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="agent-name">Sales Agent</div><span class="badge badge-orange">Working</span></div><div class="agent-role">Vehicle Sales & Customer Conversion Manager</div><div class="agent-stats"><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">2</div><div class="agent-stat-lbl">Alerts</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">7</div><div class="agent-stat-lbl">Pending</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--green)">89</div><div class="agent-stat-lbl">Done</div></div></div><div class="agent-last">7 customers require follow-up today</div><div class="agent-btns"><button class="agent-btn btn-primary" onclick="openChat('sales')">💬 Open Chat</button><button class="agent-btn btn-secondary">▶ Run</button></div></div>
+    <div class="agent-card"><div class="agent-emoji">📊</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="agent-name">Accountant Agent</div><span class="badge badge-green">Completed</span></div><div class="agent-role">Business Accounts & Cash Flow Manager</div><div class="agent-stats"><div class="agent-stat"><div class="agent-stat-val">0</div><div class="agent-stat-lbl">Alerts</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">1</div><div class="agent-stat-lbl">Pending</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--green)">234</div><div class="agent-stat-lbl">Done</div></div></div><div class="agent-last">Aug summary: Estimated profit ₹3,45,000</div><div class="agent-btns"><button class="agent-btn btn-primary" onclick="openChat('accountant')">💬 Open Chat</button><button class="agent-btn btn-secondary">▶ Run</button></div></div>
+    <div class="agent-card critical"><div class="agent-emoji">👥</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="agent-name">Customer Agent</div><span class="badge badge-red">🔴 Attention!</span></div><div class="agent-role">Customer Relationship Manager</div><div class="agent-stats"><div class="agent-stat"><div class="agent-stat-val" style="color:var(--red)">4</div><div class="agent-stat-lbl">Alerts</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">6</div><div class="agent-stat-lbl">Pending</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--green)">178</div><div class="agent-stat-lbl">Done</div></div></div><div class="agent-last">4 customers not contacted in 10+ days</div><div class="agent-btns"><button class="agent-btn btn-primary" onclick="openChat('customer')">💬 Open Chat</button><button class="agent-btn btn-secondary">▶ Run</button></div></div>
+    <div class="agent-card"><div class="agent-emoji">🔧</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="agent-name">Vehicle Agent</div><span class="badge badge-green">Online</span></div><div class="agent-role">Vehicle Operations Manager</div><div class="agent-stats"><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">2</div><div class="agent-stat-lbl">Alerts</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--orange)">3</div><div class="agent-stat-lbl">Pending</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--green)">112</div><div class="agent-stat-lbl">Done</div></div></div><div class="agent-last">2 vehicles with pending work identified</div><div class="agent-btns"><button class="agent-btn btn-primary" onclick="openChat('vehicle')">💬 Open Chat</button><button class="agent-btn btn-secondary">▶ Run</button></div></div>
+    <div class="agent-card"><div class="agent-emoji">🎯</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="agent-name">Business Manager</div><span class="badge badge-green">Completed</span></div><div class="agent-role">Executive AI Assistant for Nawaz Khan</div><div class="agent-stats"><div class="agent-stat"><div class="agent-stat-val">0</div><div class="agent-stat-lbl">Alerts</div></div><div class="agent-stat"><div class="agent-stat-val">0</div><div class="agent-stat-lbl">Pending</div></div><div class="agent-stat"><div class="agent-stat-val" style="color:var(--green)">312</div><div class="agent-stat-lbl">Done</div></div></div><div class="agent-last">Morning briefing generated. 24 tasks for today.</div><div class="agent-btns"><button class="agent-btn btn-primary" onclick="openChat('manager')">💬 Open Chat</button><button class="agent-btn btn-secondary">▶ Run</button></div></div>
+  </div>
+  <!-- Chat modal -->
+  <div id="chat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div id="chat-title" style="font-weight:700;font-size:16px">💰 Finance Agent</div>
+        <button onclick="closeChat()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>
+      </div>
+      <div id="chat-area" class="chat-area" style="flex:1;overflow-y:auto;padding:16px"></div>
+      <div style="padding:12px 16px;border-top:1px solid var(--border)">
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" placeholder="Ask the agent anything…" onkeypress="if(event.key==='Enter')sendChat()"/>
+          <button class="chat-send" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- SALES -->
+<div class="page" id="page-sales">
+  <div class="page-header"><div><h2>Sales</h2><p>Leads, follow-ups & deliveries</p></div><button class="btn btn-red">＋ Add Lead</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val" style="color:var(--orange)">3</div><div class="lbl">Pending Delivery</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--green)">14</div><div class="lbl">Active Sales</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--red)">4</div><div class="lbl">Overdue</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--blue)">2</div><div class="lbl">In Stock</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📞 Customer Follow-Ups Today</div>
+      <div class="priority-list">
+        <div class="priority-item"><span class="dot dot-red"></span><div style="flex:1"><div style="font-size:13px;font-weight:600">Imran Khan Pathan</div><div style="font-size:12px;color:var(--muted)">Finance approval awaited · MG Hector Sharp</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline" style="padding:3px 8px;font-size:11px">📞</button><button class="btn btn-outline" style="padding:3px 8px;font-size:11px;color:green">💬</button></div></div>
+        <div class="priority-item"><span class="dot dot-red"></span><div style="flex:1"><div style="font-size:13px;font-weight:600">Sana Fatima Qureshi</div><div style="font-size:12px;color:var(--muted)">HDFC approval pending · Hyundai Venue S+</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline" style="padding:3px 8px;font-size:11px">📞</button><button class="btn btn-outline" style="padding:3px 8px;font-size:11px;color:green">💬</button></div></div>
+        <div class="priority-item"><span class="dot dot-red"></span><div style="flex:1"><div style="font-size:13px;font-weight:600">Santosh Yadav</div><div style="font-size:12px;color:var(--muted)">Delivery to schedule · Hyundai Creta SX</div></div><div style="display:flex;gap:4px"><button class="btn btn-outline" style="padding:3px 8px;font-size:11px">📞</button><button class="btn btn-outline" style="padding:3px 8px;font-size:11px;color:green">💬</button></div></div>
+        <div class="priority-item"><span class="dot dot-red"></span><div style="flex:1"><div style="font-size:13px;font-weight:600">Priya Mehta</div><div style="font-size:12px;color:var(--muted)">Payment follow-up · Hyundai i20 Asta</div></div><div style="display:flex;gap:4px"><button class="btn btn-red" style="padding:3px 8px;font-size:11px">📞 Urgent</button></div></div>
+        <div class="priority-item"><span class="dot dot-red"></span><div style="flex:1"><div style="font-size:13px;font-weight:600">Abdul Hamid Sheikh</div><div style="font-size:12px;color:var(--muted)">Bajaj Finance overdue · Ford EcoSport</div></div><div style="display:flex;gap:4px"><button class="btn btn-red" style="padding:3px 8px;font-size:11px">📞 Urgent</button></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🚗 Available for Sale</div>
+      <div class="priority-list">
+        <div class="priority-item"><span style="font-size:24px">🚗</span><div style="flex:1"><div style="font-size:13px;font-weight:600">2022 Maruti Suzuki Baleno Alpha</div><div style="font-size:12px;color:var(--muted)">MH04EF5566 · Petrol · Manual · 20,000 km</div></div><div style="font-size:15px;font-weight:700;color:var(--red)">₹8,70,000</div></div>
+        <div class="priority-item"><span style="font-size:24px">🚗</span><div style="flex:1"><div style="font-size:13px;font-weight:600">2023 Hyundai Venue SX+ DCT</div><div style="font-size:12px;color:var(--muted)">DL8CAK7788 · Petrol · Auto · 8,000 km</div></div><div style="font-size:15px;font-weight:700;color:var(--orange)">₹11,20,000 (Repair)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ACCOUNTANT -->
+<div class="page" id="page-accountant">
+  <div class="page-header"><div><h2>Accountant</h2><p>Business accounts &amp; cash flow</p></div><button class="btn btn-outline">Export Report</button></div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="val" style="color:var(--green)">₹13.35L</div><div class="lbl">Total Income (Aug)</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--red)">₹21.00L</div><div class="lbl">Total Expenditure</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--blue)">₹3.45L</div><div class="lbl">Est. Profit (Aug)</div></div>
+    <div class="stat-box"><div class="val" style="color:var(--orange)">₹1.10L</div><div class="lbl">Total Expenses</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📊 Monthly Profit (₹ Lakhs)</div>
+      <div class="bar-chart">
+        <div class="bar-group"><div class="bar" style="background:var(--green);height:55%"></div><div class="bar-lbl">Mar ₹2.15L</div></div>
+        <div class="bar-group"><div class="bar" style="background:var(--green);height:65%"></div><div class="bar-lbl">Apr ₹2.58L</div></div>
+        <div class="bar-group"><div class="bar" style="background:var(--green);height:48%"></div><div class="bar-lbl">May ₹1.88L</div></div>
+        <div class="bar-group"><div class="bar" style="background:var(--green);height:78%"></div><div class="bar-lbl">Jun ₹3.10L</div></div>
+        <div class="bar-group"><div class="bar" style="background:var(--green);height:86%"></div><div class="bar-lbl">Jul ₹3.45L</div></div>
+        <div class="bar-group"><div class="bar" style="background:var(--red);height:90%"></div><div class="bar-lbl">Aug ₹3.45L</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Recent Expenses</div>
+      <table>
+        <tr><th>Description</th><th>Category</th><th>Amount</th></tr>
+        <tr><td>Body repair — Venue</td><td><span class="badge badge-orange">Repair</span></td><td style="color:var(--red)">₹15,000</td></tr>
+        <tr><td>RTO transfer fees — KA32AB1234</td><td><span class="badge badge-blue">RTO</span></td><td style="color:var(--red)">₹7,500</td></tr>
+        <tr><td>Insurance — Maruti Baleno</td><td><span class="badge badge-purple">Insurance</span></td><td style="color:var(--red)">₹18,500</td></tr>
+        <tr><td>Transport Bangalore→Jaipur</td><td><span class="badge badge-gray">Transport</span></td><td style="color:var(--red)">₹22,000</td></tr>
+        <tr><td>OLX + CarDekho listing</td><td><span class="badge badge-gray">Advertising</span></td><td style="color:var(--red)">₹8,000</td></tr>
+        <tr><td>Monthly showroom rent</td><td><span class="badge badge-gray">Rent</span></td><td style="color:var(--red)">₹25,000</td></tr>
+        <tr><td>Innova full service</td><td><span class="badge badge-orange">Service</span></td><td style="color:var(--red)">₹12,000</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- CALENDAR -->
+<div class="page" id="page-calendar">
+  <div class="page-header"><div><h2>Calendar &amp; Reminders</h2><p>12 events · 10 reminders</p></div><button class="btn btn-red">＋ Add Event</button></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🔴 Critical — Due Today</div>
+      <div class="priority-list">
+        <div class="priority-item"><span class="dot dot-red"></span><div><div style="font-size:13px;font-weight:600">Finance Overdue — Priya Mehta (ICICI)</div><div style="font-size:12px;color:var(--muted)">EMI overdue 33 days. ₹15,000 pending.</div></div><span class="badge badge-red">Critical</span></div>
+        <div class="priority-item"><span class="dot dot-red"></span><div><div style="font-size:13px;font-weight:600">Call Abdul Hamid — Bajaj Finance</div><div style="font-size:12px;color:var(--muted)">36 days overdue. Threatening legal action.</div></div><span class="badge badge-red">Critical</span></div>
+        <div class="priority-item"><span class="dot dot-red"></span><div><div style="font-size:13px;font-weight:600">Ravi Mishra — Bajaj Finance 42 Days</div><div style="font-size:12px;color:var(--muted)">Highest risk. Bajaj escalating.</div></div><span class="badge badge-red">Critical</span></div>
+        <div class="priority-item"><span class="dot dot-red"></span><div><div style="font-size:13px;font-weight:600">Meena Verma — SBI 41 Days</div><div style="font-size:12px;color:var(--muted)">SBI Bank notice expected.</div></div><span class="badge badge-red">Critical</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🟠 Upcoming This Week</div>
+      <div class="priority-list">
+        <div class="priority-item"><span class="dot dot-orange"></span><div><div style="font-size:13px;font-weight:600">Rajesh Sharma EMI — 5 Aug (₹12,500)</div><div style="font-size:12px;color:var(--muted)">HDFC Bank EMI due</div></div><span class="badge badge-orange">Due Today</span></div>
+        <div class="priority-item"><span class="dot dot-orange"></span><div><div style="font-size:13px;font-weight:600">Farhan Siddiqui EMI — 18 Aug (₹45,000)</div><div style="font-size:12px;color:var(--muted)">Kotak Bank EMI due</div></div><span class="badge badge-orange">High</span></div>
+        <div class="priority-item"><span class="dot dot-orange"></span><div><div style="font-size:13px;font-weight:600">Kotak NOC — XUV700 Deadline</div><div style="font-size:12px;color:var(--muted)">Deadline: 20 Aug 2026</div></div><span class="badge badge-red">Critical</span></div>
+        <div class="priority-item"><span class="dot dot-orange"></span><div><div style="font-size:13px;font-weight:600">Vehicle Delivery — Santosh Yadav</div><div style="font-size:12px;color:var(--muted)">Schedule Creta delivery. 20 Aug</div></div><span class="badge badge-orange">High</span></div>
+        <div class="priority-item"><span class="dot" style="background:var(--yellow-500,#eab308)"></span><div><div style="font-size:13px;font-weight:600">Sana Qureshi Finance Follow-up</div><div style="font-size:12px;color:var(--muted)">HDFC approval still pending. 18 Aug</div></div><span class="badge badge-orange">High</span></div>
+        <div class="priority-item"><span class="dot dot-green"></span><div><div style="font-size:13px;font-weight:600">Insurance Expiry — Kia Seltos</div><div style="font-size:12px;color:var(--muted)">KL07BS3344 expires 31 Aug</div></div><span class="badge badge-orange">Medium</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- NOTIFICATIONS -->
+<div class="page" id="page-notifications">
+  <div class="page-header"><div><h2>Notifications</h2><p>8 unread</p></div><button class="btn btn-outline">Mark All Read</button></div>
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:700px">
+    <div class="card" style="border-color:#fecaca;background:#fff8f8"><div style="display:flex;gap:12px"><span style="font-size:24px">🔴</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Finance Alert — Overdue Payment</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Priya Mehta EMI overdue 33 days. ₹15,000 pending. ICICI Bank following up.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-red">Critical</span><span style="font-size:11px;color:var(--muted)">Finance Agent · just now</span></div></div></div></div>
+    <div class="card" style="border-color:#fecaca;background:#fff8f8"><div style="display:flex;gap:12px"><span style="font-size:24px">🏛️</span><div style="flex:1"><div style="font-weight:600;font-size:14px">RTO Alert — Documents Missing</div><div style="font-size:13px;color:var(--muted);margin-top:4px">TS09GH6677 (XUV700): Kotak Bank NOC missing. RC transfer deadline 20 Aug.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-red">Critical</span><span style="font-size:11px;color:var(--muted)">RTO Agent · 2m ago</span></div></div></div></div>
+    <div class="card" style="border-color:#fecaca;background:#fff8f8"><div style="display:flex;gap:12px"><span style="font-size:24px">🔴</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Finance Alert — Overdue 42 Days</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Ravi Shankar Mishra EMI overdue 42 days. ₹14,000. Bajaj Finance escalating.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-red">Critical</span><span style="font-size:11px;color:var(--muted)">Finance Agent · 2m ago</span></div></div></div></div>
+    <div class="card"><div style="display:flex;gap:12px"><span style="font-size:24px">🚗</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Sales — Follow-up Required</div><div style="font-size:13px;color:var(--muted);margin-top:4px">7 customers require sales follow-up today. 2 bookings pending.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-orange">High</span><span style="font-size:11px;color:var(--muted)">Sales Agent · 15m ago</span></div></div></div></div>
+    <div class="card"><div style="display:flex;gap:12px"><span style="font-size:24px">💰</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Finance Disbursed — Santosh Yadav</div><div style="font-size:13px;color:var(--muted);margin-top:4px">ICICI Bank disbursed ₹10,00,000 for Hyundai Creta. Schedule delivery.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-orange">High</span><span style="font-size:11px;color:var(--muted)">Finance Agent · 4d ago</span></div></div></div></div>
+    <div class="card"><div style="display:flex;gap:12px"><span style="font-size:24px">🔧</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Vehicle Repair — Venue (DL8CAK7788)</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Hyundai Venue body repair in progress. Estimated 3 more days.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-gray">Medium</span><span style="font-size:11px;color:var(--muted)">Vehicle Agent · 12h ago</span></div></div></div></div>
+    <div class="card" style="opacity:.6"><div style="display:flex;gap:12px"><span style="font-size:24px">📊</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Commission Pending — SBI &amp; Kotak</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Commission pending: SBI ₹28,000 + Kotak ₹42,000. Follow up.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-gray">Medium</span><span style="font-size:11px;color:var(--muted)">Accountant Agent · 5h ago · Read</span></div></div></div></div>
+    <div class="card" style="opacity:.6"><div style="display:flex;gap:12px"><span style="font-size:24px">🎯</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Morning Briefing Ready</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Business Manager has generated your morning briefing. 24 tasks identified.</div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="badge badge-green">Low</span><span style="font-size:11px;color:var(--muted)">Business Manager · 6h ago · Read</span></div></div></div></div>
+  </div>
+</div>
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="page-header"><div><h2>Settings</h2><p>Account &amp; application settings</p></div></div>
+  <div style="max-width:600px;display:flex;flex-direction:column;gap:16px">
+    <div class="card"><div class="card-title">👤 Profile</div><div style="display:flex;align-items:center;gap:16px;margin-bottom:16px"><div style="width:60px;height:60px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff">NK</div><div><div style="font-weight:700">Nawaz Khan</div><div style="font-size:13px;color:var(--muted)">Admin · KM Car Deals</div></div></div><div style="display:grid;gap:10px"><label style="font-size:13px;font-weight:600">Full Name<input type="text" value="Nawaz Khan" style="display:block;width:100%;margin-top:4px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px"/></label><label style="font-size:13px;font-weight:600">Email<input type="email" value="nawaz@kmcardeals.com" style="display:block;width:100%;margin-top:4px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px"/></label><label style="font-size:13px;font-weight:600">Business<input type="text" value="KM Car Deals" style="display:block;width:100%;margin-top:4px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px"/></label><button class="btn btn-red" style="width:100%;padding:10px">Save Profile</button></div></div>
+    <div class="card"><div class="card-title">🤖 AI Agent Settings</div><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">🏛️ RTO Agent</div><div style="font-size:11px;color:var(--muted)">Enabled · Using mock data</div></div><input type="checkbox" checked style="accent-color:var(--red);width:18px;height:18px"/></div><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">💰 Finance Agent</div><div style="font-size:11px;color:var(--muted)">Enabled · Using mock data</div></div><input type="checkbox" checked style="accent-color:var(--red);width:18px;height:18px"/></div><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">🚗 Sales Agent</div><div style="font-size:11px;color:var(--muted)">Enabled · Using mock data</div></div><input type="checkbox" checked style="accent-color:var(--red);width:18px;height:18px"/></div><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0"><div><div style="font-size:13px;font-weight:600">🎯 Business Manager</div><div style="font-size:11px;color:var(--muted)">Enabled · Using mock data</div></div><input type="checkbox" checked style="accent-color:var(--red);width:18px;height:18px"/></div></div></div>
+    <div class="card"><div class="card-title">🔗 Backend Integration</div><div style="font-size:13px;color:var(--muted);margin-bottom:10px">Currently using demo data. Connect your backend to go live.</div><label style="font-size:13px;font-weight:600">API Base URL<input type="text" placeholder="https://api.kmcardeals.com/v1" style="display:block;width:100%;margin-top:4px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px"/></label><div style="margin-top:10px"><span class="badge badge-orange">Not Connected — Using Demo Data</span></div></div>
+  </div>
+</div>
+<!-- DOCUMENTS -->
+<div class="page" id="page-documents">
+  <div class="page-header"><div><h2>KM Car Deals Files</h2><p>10 documents</p></div><button class="btn btn-red">📤 Upload Document</button></div>
+  <div class="card">
+    <table>
+      <tr><th>Document</th><th>Category</th><th>Owner</th><th>Date</th><th>Status</th><th></th></tr>
+      <tr><td><b>RC — KA32AB1234 Toyota Innova</b></td><td><span class="badge badge-blue">RC</span></td><td>Vehicle</td><td>1 Aug 2026</td><td><span class="badge badge-orange">Pending</span></td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+      <tr><td><b>Insurance — KL07BS3344 Kia Seltos</b></td><td><span class="badge badge-purple">Insurance</span></td><td>Vehicle</td><td>1 Aug 2026</td><td><span class="badge badge-orange">Expiring</span></td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+      <tr><td><b>Loan Agreement — Rajesh Sharma HDFC</b></td><td><span class="badge badge-green">Loan</span></td><td>Finance</td><td>20 Jan 2024</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+      <tr><td><b>PAN Card — Mohammed Arif Khan</b></td><td><span class="badge badge-orange">PAN</span></td><td>Customer</td><td>10 Feb 2024</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+      <tr><td><b>Form 29 — TS09GH6677 XUV700</b></td><td><span class="badge badge-blue">Form 29</span></td><td>RTO</td><td>1 Sep 2025</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+      <tr><td><b>Invoice — Santosh Yadav Creta</b></td><td><span class="badge badge-green">Invoice</span></td><td>Vehicle</td><td>8 Aug 2026</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+      <tr><td><b>Payment Receipt — Farhan Jul EMI</b></td><td><span class="badge badge-green">Receipt</span></td><td>Finance</td><td>18 Jul 2026</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+    </table>
+  </div>
+</div>
+<!-- WEB3 -->
+<div class="page" id="page-web3">
+  <div class="page-header"><div><h2>Web3</h2><p>Blockchain integration — Phase 4</p></div></div>
+  <div style="max-width:700px;display:flex;flex-direction:column;gap:16px">
+    <div class="card" style="border:2px dashed var(--border)"><div style="display:flex;gap:12px;align-items:flex-start"><span style="font-size:20px">🌐</span><div><div style="font-weight:700;margin-bottom:4px">Web3 — Coming in Phase 4</div><div style="font-size:13px;color:var(--muted)">Architecture is ready. Provide blockchain provider details to activate wallet connection, payment verification, document hashing, and smart contracts.</div></div></div></div>
+    <div class="card"><div class="card-title">👛 Wallet Connection</div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px"><div><div style="font-size:13px;color:var(--muted)">No wallet connected</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Supports MetaMask, WalletConnect, Coinbase</div></div><button class="btn btn-red">👛 Connect Wallet</button></div></div>
+    <div class="grid2"><div class="card" style="opacity:.6"><div style="font-size:24px;margin-bottom:8px">🛡️</div><div style="font-weight:600;margin-bottom:4px">Vehicle Ownership Records</div><div style="font-size:12px;color:var(--muted)">Immutable blockchain ownership history.</div><span class="badge badge-gray" style="margin-top:8px;display:inline-flex">Planned</span></div><div class="card" style="opacity:.6"><div style="font-size:24px;margin-bottom:8px">📄</div><div style="font-weight:600;margin-bottom:4px">Document Hash Verification</div><div style="font-size:12px;color:var(--muted)">SHA-256 document hashes on-chain.</div><span class="badge badge-gray" style="margin-top:8px;display:inline-flex">Planned</span></div><div class="card" style="opacity:.6"><div style="font-size:24px;margin-bottom:8px">🔗</div><div style="font-weight:600;margin-bottom:4px">Payment Verification</div><div style="font-size:12px;color:var(--muted)">Blockchain-verified payment receipts.</div><span class="badge badge-gray" style="margin-top:8px;display:inline-flex">Planned</span></div><div class="card" style="opacity:.6"><div style="font-size:24px;margin-bottom:8px">📜</div><div style="font-weight:600;margin-bottom:4px">Smart Contract Settlements</div><div style="font-size:12px;color:var(--muted)">Automated finance settlements.</div><span class="badge badge-gray" style="margin-top:8px;display:inline-flex">Planned</span></div></div>
+  </div>
+</div>
+    </main>
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+const agentData={
+  finance:{title:'💰 Finance Agent',msgs:[{r:'agent',t:'Hello Nawaz! I\'m your Finance Agent.\n\nI\'ve checked all 10 finance accounts.\n\n🔴 4 payments critically overdue:\n1. Ravi Shankar Mishra — ₹14,000 (42 days)\n2. Meena Kumari Verma — ₹18,000 (41 days)\n3. Abdul Hamid Sheikh — ₹16,500 (36 days)\n4. Priya Mehta — ₹15,000 (33 days)\n\nTotal overdue: ₹63,500\nTotal outstanding: ₹78,25,000\n\nShould I prepare follow-up messages?'}]},
+  rto:{title:'🏛️ RTO Agent',msgs:[{r:'agent',t:'Hello Nawaz! I\'m your RTO Agent.\n\n🔴 CRITICAL — TS09GH6677 (XUV700)\nKotak Bank NOC missing!\nDeadline: 20 August 2026\nAction: Call Kavitha Nair: 9933445566\n\n🟠 HIGH — KA05MN3344 (Hyryder)\nHDFC NOC expected by 20 Aug\nCall Arun Pillai: 9966778899\n\n🟡 KA32AB1234 (Innova)\nRC transfer submitted 5 Aug\nExpected: 25 Aug\nFollow up with Hussain Basha'}]},
+  sales:{title:'🚗 Sales Agent',msgs:[{r:'agent',t:'Hello Nawaz! I\'m your Sales Agent.\n\n📊 Pipeline today:\n\n🔴 7 customers need follow-up\n🟠 2 finance approvals pending\n🟢 2 vehicles available for sale\n\nTop priority:\n• Imran Khan Pathan — Finance pending. 4 days no contact.\n• Sana Fatima Qureshi — HDFC approval awaited.\n• Santosh Yadav — Delivery to schedule after finance.\n\nShould I prepare a follow-up list?'}]},
+  accountant:{title:'📊 Accountant Agent',msgs:[{r:'agent',t:'Hello Nawaz! I\'m your Accountant Agent.\n\n📊 August 2026 Summary:\n\n💰 Sales: ₹43,50,000\n🚗 Purchases: ₹21,00,000\n📉 Expenses: ₹1,10,500\n✅ Collections: ₹1,35,500\n\n📈 Estimated Profit: ₹3,45,000\n\n⚠️ Commission pending:\nSBI: ₹28,000 | Kotak: ₹42,000\n\nNote: Business management records only.'}]},
+  customer:{title:'👥 Customer Agent',msgs:[{r:'agent',t:'Hello Nawaz! I\'m your Customer Agent.\n\n👥 Follow-up required today:\n\n🔴 Abdul Hamid Sheikh — No contact 33 days\n🔴 Ravi Shankar Mishra — Overdue 42 days\n🟠 Priya Mehta — No contact 11 days\n🟠 Meena Kumari Verma — Overdue 41 days\n\n4 customers at high risk.\nShould I prepare WhatsApp reminders?'}]},
+  vehicle:{title:'🔧 Vehicle Agent',msgs:[{r:'agent',t:'Hello Nawaz! I\'m your Vehicle Agent.\n\n🚗 Fleet status (18 vehicles):\n\n🟢 Listed for sale: 1 (Baleno MH04EF5566)\n🔧 In repair: 1 (Venue DL8CAK7788 — 3 days)\n🏛️ In RTO: 1 (Innova KA32AB1234)\n✅ Delivered: 14\n📦 Finance pending: 1 (Creta)\n\n⚠️ Insurance expiring: Kia Seltos (31 Aug)\n⚠️ RC pending 7+ months: Polo (Pune RTO)\n\nRecommendation: Follow up on Polo RC urgently.'}]},
+  manager:{title:'🎯 Business Manager',msgs:[{r:'agent',t:'Good Evening, Nawaz 🌅\n\nKM Car Deals briefing — Wednesday, 12 Aug 2026:\n\n🔴 URGENT TODAY\n• 4 finance payments critically overdue (₹63,500)\n• Kotak NOC missing — XUV700 deadline 20 Aug\n• 3 customers not contacted 30+ days\n\n📋 TODAY\'S TASKS (24 total)\n• 4 Finance follow-ups (overdue)\n• 3 RTO tasks to check\n• 4 Customer calls\n• 1 Vehicle delivery to schedule\n\n💰 FINANCIAL SNAPSHOT\n• Outstanding: ₹78,25,000\n• Collected Aug: ₹1,35,500\n• Commission pending: ₹70,000\n\n🚗 INVENTORY\n• 1 vehicle listed (Baleno)\n• 1 under repair (Venue)\n• 1 in RTO (Innova)\n\nTop Priority: Call Ravi Mishra & Meena Verma — highest legal risk.'}]},
+};
+let currentAgent=null;
+function doLogin(){
+  const e=document.getElementById('email-input').value;
+  const p=document.getElementById('pass-input').value;
+  if(!e||!p){alert('Please enter email and password');return;}
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('app').style.display='flex';
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-page').style.display='flex';
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+function showPage(name,link){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  if(link)link.classList.add('active');
+  else{
+    document.querySelectorAll('nav a').forEach(a=>{
+      if(a.getAttribute('onclick')&&a.getAttribute('onclick').includes("'"+name+"'")){a.classList.add('active');}
+    });
+  }
+}
+function openChat(agent){
+  currentAgent=agent;
+  const data=agentData[agent];
+  document.getElementById('chat-title').textContent=data.title;
+  const area=document.getElementById('chat-area');
+  area.innerHTML='';
+  data.msgs.forEach(m=>{
+    const div=document.createElement('div');
+    div.className='chat-msg '+(m.r==='user'?'chat-user':'chat-agent');
+    div.textContent=m.t;
+    area.appendChild(div);
+  });
+  area.scrollTop=area.scrollHeight;
+  document.getElementById('chat-modal').style.display='flex';
+}
+function closeChat(){document.getElementById('chat-modal').style.display='none';}
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();
+  if(!msg)return;
+  const area=document.getElementById('chat-area');
+  const userDiv=document.createElement('div');
+  userDiv.className='chat-msg chat-user';
+  userDiv.textContent=msg;
+  area.appendChild(userDiv);
+  input.value='';
+  area.scrollTop=area.scrollHeight;
+  const typing=document.createElement('div');
+  typing.className='chat-msg chat-agent';
+  typing.textContent='Analysing…';
+  area.appendChild(typing);
+  area.scrollTop=area.scrollHeight;
+  await new Promise(r=>setTimeout(r,1200));
+  const replies={
+    finance:['Based on current data, I recommend prioritising Ravi Mishra (42 days) and Meena Verma (41 days) first. Both are at high legal risk.\n\nShall I prepare WhatsApp messages for all 4 overdue customers?','Total outstanding this month: ₹78,25,000\n\nBreakdown:\n• Rajesh Sharma: ₹2,00,000\n• Priya Mehta: ₹3,00,000\n• Mohammed Arif: ₹8,36,000\n• Vikram Rathore: ₹13,44,000\n• And 6 more accounts...'],
+    rto:['3 RTO tasks need immediate attention:\n\n1. TS09GH6677 — Kotak NOC missing (URGENT)\n2. KA05MN3344 — HDFC NOC pending\n3. MH12PP4321 — 7+ months at Pune RTO\n\nShould I create reminders for all three?','RC transfer typically takes 15-30 days after submission. The Pune RTO delay is unusual — follow up directly with the RTO office.'],
+    sales:['Based on purchase intent signals:\n\n1. Imran Khan Pathan — Strong buyer. Finance approval expected soon.\n2. Sana Fatima Qureshi — Paid advance. Likely to convert.\n3. Santosh Yadav — Finance disbursed. Ready for delivery.\n\nRecommend: Call all 3 today.','This month: 2 vehicles sold. ₹43,50,000 in sales.\nAvailable stock: 2 vehicles (Baleno ₹8.7L, Venue ₹11.2L)'],
+    accountant:['August profit estimate: ₹3,45,000\n\nIncome: ₹43,50,000 (sales)\nExpenses: ₹1,10,500\nPurchases: ₹21,00,000\nNet: ₹3,45,000 approx\n\nNote: These are business management records.','Commission outstanding: ₹70,000\n• SBI Bank: ₹28,000 (Vikram Rathore loan)\n• Kotak Bank: ₹42,000 (Farhan & Rohan loans)\n\nCall Dinesh Sharma (SBI) and Kavitha Nair (Kotak) today.'],
+    customer:['Customers needing urgent contact:\n\n🔴 Abdul Hamid — 33 days no contact\n🔴 Ravi Mishra — Overdue 42 days\n🟠 Priya Mehta — 11 days no contact\n🟠 Meena Verma — Overdue 41 days\n\nShall I prepare call script?','Last contact summary:\n• Rajesh Sharma: 28 Jul 2026\n• Priya Mehta: 1 Jul 2026 (11 days ago)\n• Mohammed Arif: 20 Jul 2026\n• Abdul Hamid: 10 Jul 2026 (33 days ago!) ⚠️'],
+    vehicle:['Active vehicles requiring attention:\n\n🔧 DL8CAK7788 Venue — Repair (3 days remaining)\n🏛️ KA32AB1234 Innova — RTO process (submitted 5 Aug)\n📦 DL9CK4455 Creta — Finance pending\n\nAll other 15 vehicles are delivered.','Insurance expiring soon:\n• KL07BS3344 Kia Seltos — 31 Aug 2026\n• TN09BB1234 Renault Kiger — Expired Jul 2026\n\nPlease renew both urgently.'],
+    manager:['Based on all agent reports, your top 3 priorities today:\n\n1. Call Ravi Mishra (9823401234) — Bajaj Finance 42 days\n2. Get Kotak NOC for XUV700 — Deadline 20 Aug\n3. Call Meena Verma (9734567890) — SBI 41 days\n\nAddress these first thing today.','This week summary:\n• ₹63,500 overdue payments to collect\n• 2 RTO deadlines approaching\n• 1 vehicle delivery to schedule\n• 2 finance approvals to follow up\n• Commission ₹70,000 to collect\n\nTip: Morning calls are most effective for collections.'],
+  };
+  const agentReplies=replies[currentAgent]||['I\'m analysing your request based on the current business data. Connect a real LLM to get live AI responses.'];
+  typing.textContent=agentReplies[Math.floor(Math.random()*agentReplies.length)];
+  area.scrollTop=area.scrollHeight;
+}
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();alert('Search: Type customer name, vehicle registration, or phone number');}
+});
+</script>
+</body>
+</html>

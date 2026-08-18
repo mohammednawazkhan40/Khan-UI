@@ -32,7 +32,13 @@ export default function RTOAgentPage() {
     setMessages(m => [...m, userMsg])
     setInput('')
     setSending(true)
-    const reply = await sendAgentMessage('rto_agent', input.trim())
+    const { mockRTOTasks, mockVehicles } = await import('@/lib/mock')
+    const context = {
+      rtoTasks:     mockRTOTasks.filter(t => !['completed','cancelled'].includes(t.status)).map(t => ({ vehicleRegistration: t.vehicleRegistration, taskType: t.taskType, status: t.status, priority: t.priority, expectedCompletionDate: t.expectedCompletionDate, notes: t.notes })),
+      criticalTasks: mockRTOTasks.filter(t => t.priority === 'critical').map(t => ({ vehicleRegistration: t.vehicleRegistration, taskType: t.taskType, expectedCompletionDate: t.expectedCompletionDate })),
+      vehicles:     mockVehicles.filter(v => v.rtoStatus !== 'completed').map(v => ({ registrationNumber: v.registrationNumber, brand: v.brand, model: v.model, rtoStatus: v.rtoStatus })),
+    }
+    const reply = await sendAgentMessage('rto_agent', input.trim(), messages, context)
     setMessages(m => [...m, reply])
     setSending(false)
   }

@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+khan-backend/data/
+khan-interface/frontend-output.log
+khan-interface/frontend.log
+khan-interface/deploy.bat
+khan-backend/backend.log
+khan-backend/backend-output.log
+khan-backend/stdout.log
+khan-backend/stderr.log

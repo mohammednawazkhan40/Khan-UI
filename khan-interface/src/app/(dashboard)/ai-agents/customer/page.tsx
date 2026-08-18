@@ -31,7 +31,12 @@ export default function CustomerAgentPage() {
     setMessages(m => [...m, userMsg])
     setInput('')
     setSending(true)
-    const reply = await sendAgentMessage('customer_agent', input.trim())
+    const { mockCustomers } = await import('@/lib/mock')
+    const context = {
+      customers:        mockCustomers.map(c => ({ fullName: c.fullName, phone: c.phone, status: c.status, amountPending: c.amountPending, lastContactDate: c.lastContactDate, nextFollowUpDate: c.nextFollowUpDate })),
+      overdueCustomers: mockCustomers.filter(c => c.status === 'overdue').map(c => ({ fullName: c.fullName, phone: c.phone, amountPending: c.amountPending, lastContactDate: c.lastContactDate })),
+    }
+    const reply = await sendAgentMessage('customer_agent', input.trim(), messages, context)
     setMessages(m => [...m, reply])
     setSending(false)
   }

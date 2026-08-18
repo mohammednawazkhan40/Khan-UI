@@ -37,7 +37,18 @@ export default function FinanceAgentPage() {
     setMessages(m => [...m, userMsg])
     setInput('')
     setSending(true)
-    const reply = await sendAgentMessage('finance_agent', input.trim())
+
+    // Pass live mock data as context to the LLM
+    const { mockFinanceAccounts, mockCustomers } = await import('@/lib/mock')
+    const context = {
+      financeAccounts:  mockFinanceAccounts,
+      overdueAccounts:  mockFinanceAccounts.filter(f => f.status === 'overdue').map(f => ({ customerName: f.customerName, outstandingAmount: f.outstandingAmount, financeCompany: f.financeCompany, daysOverdue: Math.floor((Date.now() - new Date(f.nextPaymentDate).getTime()) / 86400000) })),
+      totalOutstanding: mockFinanceAccounts.reduce((s, f) => s + f.outstandingAmount, 0),
+      customers:        mockCustomers,
+      overdueCustomers: mockCustomers.filter(c => c.status === 'overdue').map(c => ({ fullName: c.fullName, phone: c.phone, amountPending: c.amountPending })),
+    }
+
+    const reply = await sendAgentMessage('finance_agent', input.trim(), messages, context)
     setMessages(m => [...m, reply])
     setSending(false)
   }

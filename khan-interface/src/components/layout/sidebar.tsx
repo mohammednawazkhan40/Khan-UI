@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, Car, ArrowLeftRight, Wallet, CreditCard,
   Bot, Calendar, BarChart3, FileText, Globe, Bell, Settings,
   ChevronLeft, ChevronRight, LogOut, User, Building2, FileStack,
-  Shield, Wrench, TrendingUp, X,
+  Shield, Wrench, TrendingUp, X, ShieldCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
@@ -15,19 +15,19 @@ import { Badge } from '@/components/ui/badge'
 
 const navItems = [
   { href: '/dashboard',     label: 'Command Center', icon: LayoutDashboard, badge: null },
+  { href: '/admin',         label: 'Admin Portal',   icon: ShieldCheck,     badge: 'NEW' },
   { href: '/customers',     label: 'Customers',       icon: Users,           badge: null },
   { href: '/vehicles',      label: 'Vehicles',        icon: Car,             badge: null },
   { href: '/transactions',  label: 'Transactions',    icon: ArrowLeftRight,  badge: null },
-  { href: '/finance',       label: 'Finance',         icon: Wallet,          badge: '4' },
+  { href: '/finance',       label: 'Finance',         icon: Wallet,          badge: null },
   { href: '/payments',      label: 'Payments',        icon: CreditCard,      badge: null },
-  { href: '/rto',           label: 'RTO Manager',     icon: Shield,          badge: '2' },
+  { href: '/rto',           label: 'RTO Manager',     icon: Shield,          badge: null },
   { href: '/sales',         label: 'Sales',           icon: TrendingUp,      badge: null },
   { href: '/accountant',    label: 'Accountant',      icon: BarChart3,       badge: null },
   { href: '/ai-agents',     label: 'AI Team',         icon: Bot,             badge: null },
   { href: '/calendar',      label: 'Calendar',        icon: Calendar,        badge: null },
   { href: '/documents',     label: 'Documents',       icon: FileStack,       badge: null },
   { href: '/notifications', label: 'Notifications',   icon: Bell,            badge: null },
-  { href: '/web3',          label: 'Web3',            icon: Globe,           badge: null },
   { href: '/settings',      label: 'Settings',        icon: Settings,        badge: null },
 ]
 
@@ -139,31 +139,44 @@ export function Sidebar() {
         </nav>
 
         {/* User */}
-        <div className="border-t p-2 shrink-0">
-          <div className={cn('flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer', !sidebarOpen && 'justify-center')}>
-            <div className="w-8 h-8 khan-gradient rounded-full flex items-center justify-center shrink-0">
-              <span className="text-white text-xs font-bold">NK</span>
-            </div>
-            <AnimatePresence>
-              {sidebarOpen && (
-                <motion.div
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="flex-1 min-w-0"
-                >
-                  <p className="text-sm font-semibold truncate">Nawaz Khan</p>
-                  <p className="text-xs text-muted-foreground">Admin</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            {sidebarOpen && (
-              <Link href="/login">
-                <button className="p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-colors">
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </Link>
-            )}
-          </div>
-        </div>
+  <div className="border-t p-2 shrink-0">
+    <div className={cn('flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer', !sidebarOpen && 'justify-center')}>
+      <div className="relative w-8 h-8 shrink-0">
+        <img
+          src="/images/nawaz-1.jpg"
+          alt="Mr. Nawaz Khan"
+          className="w-8 h-8 rounded-full object-cover object-top border-2 border-khan-red"
+          onError={(e) => {
+            const el = e.target as HTMLImageElement
+            el.style.display = 'none'
+            const fallback = document.createElement('div')
+            fallback.className = 'w-8 h-8 khan-gradient rounded-full flex items-center justify-center'
+            fallback.innerHTML = '<span class="text-white text-xs font-bold">NK</span>'
+            el.parentElement?.appendChild(fallback)
+          }}
+        />
+        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-card" />
+      </div>
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex-1 min-w-0"
+          >
+            <p className="text-sm font-semibold truncate">Mr. Nawaz Khan</p>
+            <p className="text-xs text-muted-foreground">Founder · Admin</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {sidebarOpen && (
+        <Link href="/login">
+          <button className="p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-colors">
+            <LogOut className="w-4 h-4" />
+          </button>
+        </Link>
+      )}
+    </div>
+  </div>
       </motion.aside>
     </>
   )

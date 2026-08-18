@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Car, Users, Wallet, CreditCard, Shield, Bell, TrendingUp, AlertCircle,
-  ArrowUpRight, ArrowDownRight, Building2, Bot, Calendar, CheckCircle2,
-  Clock, Zap, ChevronRight, DollarSign, Activity, BarChart3
+  Car, Users, Wallet, Shield, Bell, TrendingUp, AlertCircle,
+  ArrowUpRight, ArrowDownRight, Bot, Calendar,
+  Clock, Zap, ChevronRight
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -12,14 +12,13 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PriorityBadge, StatusBadge } from '@/components/shared/status-badge'
-import { getDashboardSummary, getChartData, getAgentActivities, getTodayReminders, getOverduePayments } from '@/lib/services'
+import { getDashboardSummary, getChartData, getTodayReminders } from '@/lib/services'
 import { formatCurrency, formatCurrencyFull, getGreeting, formatDate, daysAgo } from '@/lib/utils'
-import { mockReminders, mockAgentActivities } from '@/lib/mock'
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
 import Link from 'next/link'
-import type { AgentActivity, Reminder } from '@/types'
+import type { Reminder } from '@/types'
 
 const fadeUp = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } }
@@ -27,48 +26,62 @@ const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } 
 export default function DashboardPage() {
   const [summary, setSummary] = useState<any>(null)
   const [chartData, setChartData] = useState<any[]>([])
-  const [activities, setActivities] = useState<AgentActivity[]>([])
   const [todayReminders, setTodayReminders] = useState<Reminder[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([getDashboardSummary(), getChartData(), getAgentActivities(), getTodayReminders()])
-      .then(([s, c, a, r]) => { setSummary(s); setChartData(c); setActivities(a); setTodayReminders(r) })
+    Promise.all([getDashboardSummary(), getChartData(), getTodayReminders()])
+      .then(([s, c, r]) => { setSummary(s); setChartData(c); setTodayReminders(r) })
       .finally(() => setLoading(false))
   }, [])
 
   const hour = new Date().getHours()
 
+  const criticalAlerts = (summary?.overdueCustomers || 0) + (summary?.overduePayments || 0) + (summary?.rtoTasksCritical || 0)
+
   const kpis = summary ? [
-    { label: 'Total Vehicles',      value: summary.totalVehicles,      formatted: String(summary.totalVehicles),      icon: Car,          color: 'text-blue-600',   bg: 'bg-blue-50 dark:bg-blue-950',   change: +2, sub: `${summary.availableVehicles} available` },
-    { label: 'Customers',           value: summary.totalCustomers,     formatted: String(summary.totalCustomers),     icon: Users,        color: 'text-green-600',  bg: 'bg-green-50 dark:bg-green-950', change: +3, sub: `${summary.overdueCustomers} overdue` },
-    { label: 'Finance Outstanding', value: summary.financeOutstanding, formatted: formatCurrency(summary.financeOutstanding), icon: Wallet, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950', change: +8.4, sub: `${summary.overduePayments} overdue` },
-    { label: 'Collected (Aug)',     value: summary.totalCollectedThisMonth, formatted: formatCurrency(summary.totalCollectedThisMonth), icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950', change: +12, sub: 'This month' },
-    { label: 'RTO Pending',         value: summary.rtoTasksPending,    formatted: String(summary.rtoTasksPending),    icon: Shield,       color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950', change: -1, sub: `${summary.rtoTasksOverdue} overdue` },
+    { label: 'Total Vehicles',      value: summary.totalVehicles,      formatted: String(summary.totalVehicles),      icon: Car,          color: 'text-blue-600',   bg: 'bg-blue-50 dark:bg-blue-950',   change: 0, sub: `${summary.availableVehicles} available` },
+    { label: 'Customers',           value: summary.totalCustomers,     formatted: String(summary.totalCustomers),     icon: Users,        color: 'text-green-600',  bg: 'bg-green-50 dark:bg-green-950', change: 0, sub: `${summary.overdueCustomers} overdue` },
+    { label: 'Finance Outstanding', value: summary.totalOutstanding, formatted: formatCurrency(summary.totalOutstanding), icon: Wallet, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950', change: 0, sub: `${summary.overduePayments} overdue` },
+    { label: 'Collected This Month',     value: summary.totalCollectedThisMonth, formatted: formatCurrency(summary.totalCollectedThisMonth), icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950', change: 0, sub: 'This month' },
+    { label: 'RTO Pending',         value: summary.rtoTasksPending,    formatted: String(summary.rtoTasksPending),    icon: Shield,       color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950', change: 0, sub: `${summary.rtoTasksCritical} critical` },
     { label: 'Reminders Today',     value: summary.remindersToday,     formatted: String(summary.remindersToday),     icon: Bell,         color: 'text-red-600',    bg: 'bg-red-50 dark:bg-red-950',     change: 0,  sub: `${summary.remindersOverdue} overdue` },
-    { label: 'Sales (Aug)',         value: summary.salesThisMonth,     formatted: formatCurrency(summary.salesThisMonth), icon: DollarSign, color: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-950', change: +15, sub: `${summary.soldThisMonth} vehicles` },
-    { label: 'Est. Profit (Aug)',   value: summary.estimatedProfitThisMonth, formatted: formatCurrency(summary.estimatedProfitThisMonth), icon: BarChart3, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950', change: +6, sub: 'Estimated' },
   ] : []
 
   return (
     <div className="space-y-6 pb-8">
       {/* Top greeting */}
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">
-              {getGreeting()}, <span className="text-khan-red">Nawaz</span> 👋
-            </h1>
+        <div className="flex items-center gap-4">
+          <div className="relative w-14 h-14 shrink-0 hidden sm:block">
+            <img
+              src="/images/nawaz-2.jpg"
+              alt="Mr. Nawaz Khan"
+              className="w-14 h-14 rounded-full object-cover object-top border-2 border-khan-red shadow-lg"
+              onError={(e) => {
+                const el = e.target as HTMLImageElement
+                el.style.display = 'none'
+              }}
+            />
+            <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-background" />
           </div>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            KM Car Deals — Business Command Center &nbsp;·&nbsp; Wednesday, 12 August 2026
-          </p>
+          <div>
+            <p className="text-muted-foreground text-sm font-medium uppercase tracking-widest mb-1">{getGreeting()}</p>
+            <h1 className="text-3xl font-black tracking-tight">
+              <span className="text-khan-red">NAWAZ</span>{' '}
+              <span className="text-foreground">KHAN</span>{' '}
+              <span className="text-2xl">👋</span>
+            </h1>
+            <p className="text-muted-foreground text-sm mt-0.5">
+              KM Car Deals — Business Command Centre &nbsp;·&nbsp; Wednesday, 12 August 2026
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <div className="px-3 py-1.5 rounded-full bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-red-500 status-pulse" />
-            <span className="text-xs font-semibold text-red-700 dark:text-red-400">4 Critical Alerts</span>
+            <span className="text-xs font-semibold text-red-700 dark:text-red-400">{criticalAlerts} Critical Alerts</span>
           </div>
           <Link href="/ai-agents">
             <Button size="sm" variant="khan" className="gap-1.5">
@@ -80,7 +93,7 @@ export default function DashboardPage() {
 
       {/* KPI Cards */}
       <motion.div variants={container} initial="hidden" animate="show"
-        className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3">
         {loading
           ? Array(8).fill(0).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)
           : kpis.map((kpi) => (
@@ -144,25 +157,9 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2.5 pt-0">
-            {[
-              { dot: 'bg-red-500',    text: 'Call Ravi Mishra — 42d overdue', link: '/finance' },
-              { dot: 'bg-red-500',    text: 'Kotak NOC for XUV700 (TS09GH)', link: '/rto' },
-              { dot: 'bg-red-500',    text: 'Meena Verma — 41d overdue', link: '/finance' },
-              { dot: 'bg-orange-500', text: 'Priya Mehta — 33d overdue', link: '/finance' },
-              { dot: 'bg-orange-500', text: 'Abdul Hamid — Bajaj notice', link: '/finance' },
-              { dot: 'bg-orange-500', text: 'HDFC NOC — Toyota Hyryder', link: '/rto' },
-              { dot: 'bg-yellow-500', text: 'Farhan Siddiqui EMI — 18 Aug', link: '/payments' },
-              { dot: 'bg-yellow-500', text: 'Venue delivery — Santosh Yadav', link: '/vehicles' },
-              { dot: 'bg-green-500',  text: 'Baleno listing — ready for sale', link: '/vehicles' },
-            ].map((p, i) => (
-              <Link key={i} href={p.link}>
-                <div className="flex items-center gap-2.5 hover:bg-muted px-2 py-1.5 rounded-lg transition-colors cursor-pointer group">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${p.dot}`} />
-                  <span className="text-xs flex-1">{p.text}</span>
-                  <ChevronRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </Link>
-            ))}
+            <p className="text-sm text-muted-foreground py-6 text-center">
+              No priorities yet. Add customers and finance data to see priorities here.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -184,21 +181,9 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-2 pt-0">
-            {activities.slice(0, 6).map(a => (
-              <div key={a.id} className="flex items-start gap-2.5 py-1">
-                <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
-                  a.severity === 'critical' ? 'bg-red-500' : a.severity === 'high' ? 'bg-orange-500' : a.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-                }`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs font-semibold">{a.agentName}</span>
-                    <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-xs text-muted-foreground">{a.action}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground truncate">{a.detail}</p>
-                </div>
-              </div>
-            ))}
+            <p className="text-sm text-muted-foreground py-6 text-center">
+              No AI activity yet. Add business data and run AI agents to see activity.
+            </p>
           </CardContent>
         </Card>
 
@@ -237,12 +222,12 @@ export default function DashboardPage() {
       {/* Quick nav cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { label: 'Customers',   href: '/customers',   icon: Users,      count: '20', color: 'text-blue-600',   bg: 'bg-blue-50 dark:bg-blue-950' },
-          { label: 'Vehicles',    href: '/vehicles',    icon: Car,        count: '18', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
-          { label: 'Finance',     href: '/finance',     icon: Wallet,     count: '10', color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
-          { label: 'RTO Tasks',   href: '/rto',         icon: Shield,     count: '8',  color: 'text-red-600',    bg: 'bg-red-50 dark:bg-red-950' },
-          { label: 'AI Team',     href: '/ai-agents',   icon: Bot,        count: '7',  color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
-          { label: 'Calendar',    href: '/calendar',    icon: Calendar,   count: '15', color: 'text-teal-600',   bg: 'bg-teal-50 dark:bg-teal-950' },
+          { label: 'Customers',   href: '/customers',   icon: Users,      count: summary?.totalCustomers ?? 0, color: 'text-blue-600',   bg: 'bg-blue-50 dark:bg-blue-950' },
+          { label: 'Vehicles',    href: '/vehicles',    icon: Car,        count: summary?.totalVehicles ?? 0, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950' },
+          { label: 'Finance',     href: '/finance',     icon: Wallet,     count: summary?.overduePayments ?? 0, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950' },
+          { label: 'RTO Tasks',   href: '/rto',         icon: Shield,     count: summary?.rtoTasksPending ?? 0,  color: 'text-red-600',    bg: 'bg-red-50 dark:bg-red-950' },
+          { label: 'AI Team',     href: '/ai-agents',   icon: Bot,        count: 7,  color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950' },
+          { label: 'Calendar',    href: '/calendar',    icon: Calendar,   count: summary?.remindersToday ?? 0, color: 'text-teal-600',   bg: 'bg-teal-50 dark:bg-teal-950' },
         ].map(({ label, href, icon: Icon, count, color, bg }) => (
           <Link key={href} href={href}>
             <Card className="hover:shadow-md transition-shadow cursor-pointer hover:border-khan-red/30 group">
