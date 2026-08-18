@@ -19,3 +19,7 @@ services:
         value: khankm2026nawaz_secret_key_32chars
       - key: FRONTEND_URL
         value: https://khan-ui.vercel.app
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b

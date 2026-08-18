@@ -1,13 +1,13 @@
 /**
  * GROQ LLM SERVICE — Khan Interface
- * Free Llama 3.1 70B via Groq Cloud
+ * GPT-OSS 120B via Groq Cloud
  * https://console.groq.com — free API key
  */
 const Groq   = require('groq-sdk')
 const { supabase } = require('../db/supabase')
 
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null
-const MODEL = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile'
+const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b'
 
 const OWNER    = process.env.OWNER_NAME    || 'Nawaz Khan'
 const BUSINESS = process.env.BUSINESS_NAME || 'KM Car Deals'

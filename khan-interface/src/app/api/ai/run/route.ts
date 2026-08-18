@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     const owner    = process.env.OWNER_NAME    || 'Nawaz Khan'
     const business = process.env.BUSINESS_NAME || 'KM Car Deals'
-    const model    = process.env.GROQ_MODEL    || 'llama-3.1-70b-versatile'
+    const model    = process.env.GROQ_MODEL    || 'openai/gpt-oss-120b'
 
     // Build context string from provided data
     let contextStr = ''

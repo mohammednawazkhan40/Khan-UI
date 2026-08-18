@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt = buildSystemPrompt(agentId, context)
-    const model = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile'
+    const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b'
 
     // Build messages array (last 10 turns for context)
     const messages = [
