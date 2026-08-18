@@ -200,7 +200,7 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 </div>
 <script>
-const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://khan-interface-api.onrender.com';
+const API = 'http://localhost:8000';
 let token = localStorage.getItem('khan_token') || '';
 let currentTab = 'overview';
 let dataStore = {};
